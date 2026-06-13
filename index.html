@@ -86,7 +86,9 @@
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-slate-700 mb-1">Nama Aset</label>
-                    <input type="text" id="namaAset" required placeholder="Cth: Meja Guru" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    <select id="namaAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <option value="">Pilih Nama Aset...</option>
+                        </select>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
@@ -102,12 +104,7 @@
                         <label class="block text-sm font-medium text-slate-700 mb-1">Lokasi</label>
                         <select id="lokasiAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                             <option value="">Pilih Lokasi...</option>
-                            <option value="Bilik Guru">Bilik Guru</option>
-                            <option value="Makmal Komputer">Makmal Komputer</option>
-                            <option value="Pejabat Am">Pejabat Am</option>
-                            <option value="Bilik Darjah - Tahun 6">Bilik Darjah - Tahun 6</option>
-                            <option value="Bilik Darjah - Tahun 4">Bilik Darjah - Tahun 4</option>
-                        </select>
+                            </select>
                     </div>
                 </div>
 
@@ -131,6 +128,7 @@
     </div>
 
     <script>
+        // MASUKKAN URL ANDA SEPERTI BIASA
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzJ_hJvfC-r2ZsV9iwVrQgGeq2cI6EPtTLjmNeCtcyR21S207jhvJE_LN9PY8fzQo4/exec'; 
         
         const modal = document.getElementById('asetModal');
@@ -138,7 +136,8 @@
         const tableBody = document.getElementById('tableBody');
         const btnSimpan = document.getElementById('btnSimpan');
 
-        // FUNGSI BORANG (BUKA / TUTUP)
+        let dataTetapanGlobal = { lokasi: [], namaAset: [] };
+
         function openModal(jenisTindakan) {
             form.reset();
             document.getElementById('actionType').value = jenisTindakan;
@@ -157,93 +156,86 @@
             });
         }
 
-        // FUNGSI DUPLICATE & EDIT
         function panggilBorang(action, rowIndex, noDaftar, noSiri, nama, kategori, lokasi, status) {
             document.getElementById('actionType').value = action;
             document.getElementById('rowIndexField').value = rowIndex;
             
             document.getElementById('noDaftar').value = action === 'duplicate' ? autoIncrement(noDaftar) : noDaftar;
             document.getElementById('noSiri').value = action === 'duplicate' ? '' : noSiri;
+            
+            // Masukkan nilai ke dropdown
             document.getElementById('namaAset').value = nama;
             document.getElementById('kategoriAset').value = kategori;
-            
-            // Periksa jika lokasi dari database ada dalam pilihan dropdown
-            let selectLokasi = document.getElementById('lokasiAset');
-            let optionExists = Array.from(selectLokasi.options).some(opt => opt.value === lokasi);
-            if(!optionExists && lokasi) {
-                let newOption = new Option(lokasi, lokasi);
-                selectLokasi.add(newOption);
-            }
-            selectLokasi.value = lokasi;
+            document.getElementById('lokasiAset').value = lokasi;
             document.getElementById('statusAset').value = status || 'Baik';
             
             if (action === 'duplicate') {
                 document.getElementById('modalTitle').innerText = 'Duplicate Rekod';
-                document.getElementById('actionType').value = 'tambah'; // Duplicate bertindak sebagai tambah data baru
+                document.getElementById('actionType').value = 'tambah'; 
             } else {
                 document.getElementById('modalTitle').innerText = 'Kemaskini Rekod';
             }
             modal.classList.remove('hidden');
         }
 
-        // FUNGSI PADAM (DELETE) SATU REKOD
         async function padamRekod(rowIndex, namaAset) {
             if(confirm(`Adakah anda pasti mahu memadam rekod "${namaAset}"?\nData ini tidak boleh dikembalikan.`)) {
                 try {
                     await fetch(scriptURL, {
-                        method: 'POST',
-                        mode: 'no-cors',
+                        method: 'POST', mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'delete', rowIndex: rowIndex })
                     });
                     setTimeout(muatData, 800);
-                } catch (error) {
-                    alert('Gagal memadam rekod.');
-                }
+                } catch (error) { alert('Gagal memadam rekod.'); }
             }
         }
 
-        // FUNGSI RESET SEMUA (DENGAN KATA LALUAN)
         async function resetSemua() {
-            let pass = prompt("AMARAN: Ini akan memadam KESELURUHAN rekod inventori aset!\n\nSila masukkan kata laluan untuk sahkan tindakan ini:");
+            let pass = prompt("AMARAN: Ini akan memadam KESELURUHAN rekod inventori aset!\nSila masukkan kata laluan:");
             if(pass === "aset2026") {
                 if(confirm("Pengesahan Terakhir: Padam semua data sekarang?")) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-red-500 font-bold">Sedang memadam semua pangkalan data...</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-red-500 font-bold">Sedang memadam pangkalan data...</td></tr>';
                     try {
                         await fetch(scriptURL, {
-                            method: 'POST',
-                            mode: 'no-cors',
+                            method: 'POST', mode: 'no-cors',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ action: 'reset' })
                         });
-                        setTimeout(() => {
-                            alert('Semua rekod aset telah dibersihkan.');
-                            muatData();
-                        }, 1000);
-                    } catch (error) {
-                        alert('Gagal membersihkan data.');
-                    }
+                        setTimeout(() => { muatData(); }, 1000);
+                    } catch (error) { alert('Gagal membersihkan data.'); }
                 }
-            } else if (pass !== null) {
-                alert("Kata laluan salah. Tindakan dibatalkan.");
-            }
+            } else if (pass !== null) { alert("Kata laluan salah."); }
         }
 
-        // MUAT DATA DARI SHEETS
         async function muatData() {
             tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">Menyegerak data dari Google Sheets...</td></tr>';
             try {
                 const response = await fetch(scriptURL + "?t=" + new Date().getTime());
-                const data = await response.json();
+                const responseData = await response.json();
                 
+                const dataAset = responseData.aset;
+                dataTetapanGlobal = responseData.tetapan; // Simpan senarai dropdown
+                
+                // --- KEMASKINI DROPDOWN FORM ---
+                const selectLokasi = document.getElementById('lokasiAset');
+                const selectNama = document.getElementById('namaAset');
+                
+                selectLokasi.innerHTML = '<option value="">Pilih Lokasi...</option>';
+                dataTetapanGlobal.lokasi.forEach(lok => selectLokasi.add(new Option(lok, lok)));
+
+                selectNama.innerHTML = '<option value="">Pilih Nama Aset...</option>';
+                dataTetapanGlobal.namaAset.forEach(nama => selectNama.add(new Option(nama, nama)));
+                // -------------------------------
+
                 tableBody.innerHTML = '';
                 
-                if(data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">Pangkalan data inventori kosong. Sila mula mendaftar aset.</td></tr>';
+                if(dataAset.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">Pangkalan data inventori kosong.</td></tr>';
                     return;
                 }
 
-                data.forEach(item => {
+                dataAset.forEach(item => {
                     const rowIdx = item['rowIndex'];
                     const noDaftarStr = String(item['No Pendaftaran'] || '-').replace(/'/g, "\\'");
                     const noSiriStr = String(item['No Siri'] || '').replace(/'/g, "\\'");
@@ -271,15 +263,9 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end gap-2">
-                                    <button onclick="panggilBorang('duplicate', ${rowIdx}, '${noDaftarStr}', '${noSiriStr}', '${namaStr}', '${katStr}', '${lokStr}', '${statusStr}')" title="Duplicate" class="text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 p-2 rounded transition-colors">
-                                        <i class="fa-regular fa-copy"></i>
-                                    </button>
-                                    <button onclick="panggilBorang('edit', ${rowIdx}, '${noDaftarStr}', '${noSiriStr}', '${namaStr}', '${katStr}', '${lokStr}', '${statusStr}')" title="Edit" class="text-slate-500 hover:text-green-600 bg-slate-100 hover:bg-green-50 p-2 rounded transition-colors">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </button>
-                                    <button onclick="padamRekod(${rowIdx}, '${namaStr}')" title="Delete" class="text-slate-500 hover:text-red-600 bg-slate-100 hover:bg-red-50 p-2 rounded transition-colors">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
+                                    <button onclick="panggilBorang('duplicate', ${rowIdx}, '${noDaftarStr}', '${noSiriStr}', '${namaStr}', '${katStr}', '${lokStr}', '${statusStr}')" class="text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 p-2 rounded transition-colors"><i class="fa-regular fa-copy"></i></button>
+                                    <button onclick="panggilBorang('edit', ${rowIdx}, '${noDaftarStr}', '${noSiriStr}', '${namaStr}', '${katStr}', '${lokStr}', '${statusStr}')" class="text-slate-500 hover:text-green-600 bg-slate-100 hover:bg-green-50 p-2 rounded transition-colors"><i class="fa-solid fa-pen"></i></button>
+                                    <button onclick="padamRekod(${rowIdx}, '${namaStr}')" class="text-slate-500 hover:text-red-600 bg-slate-100 hover:bg-red-50 p-2 rounded transition-colors"><i class="fa-solid fa-trash-can"></i></button>
                                 </div>
                             </td>
                         </tr>
@@ -291,15 +277,13 @@
             }
         }
 
-        // SIMPAN / KEMASKINI DATA
         async function simpanData(e) {
             e.preventDefault();
             btnSimpan.innerText = 'Memproses...';
             btnSimpan.disabled = true;
 
-            const action = document.getElementById('actionType').value;
             const payloadData = {
-                action: action,
+                action: document.getElementById('actionType').value,
                 rowIndex: document.getElementById('rowIndexField').value,
                 data: {
                     id: new Date().getTime(),
@@ -314,23 +298,19 @@
 
             try {
                 await fetch(scriptURL, {
-                    method: 'POST',
-                    mode: 'no-cors',
+                    method: 'POST', mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payloadData)
                 });
-                
                 closeModal();
-                setTimeout(muatData, 1000); // Reload data selepas 1 saat
-            } catch (error) {
-                alert('Berlaku ralat sistem.');
-            } finally {
+                setTimeout(muatData, 1000); 
+            } catch (error) { alert('Berlaku ralat sistem.'); } 
+            finally {
                 btnSimpan.innerText = 'Simpan Rekod';
                 btnSimpan.disabled = false;
             }
         }
 
-        // FUNGSI CARIAN (LIVE SEARCH)
         function carianData() {
             let input = document.getElementById("searchInput").value.toLowerCase();
             let rows = document.getElementsByClassName("search-row");
