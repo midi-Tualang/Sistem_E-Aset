@@ -20,8 +20,11 @@
                     <i class="fa-solid fa-school text-xl"></i>
                     <span class="font-bold text-lg tracking-wide">E-Aset Sekolah</span>
                 </div>
-                <div>
-                    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
+                <div class="flex gap-2">
+                    <button onclick="resetSemua()" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Reset
+                    </button>
+                    <button onclick="openModal('tambah')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
                         <i class="fa-solid fa-plus mr-1"></i> Tambah Aset
                     </button>
                 </div>
@@ -32,25 +35,25 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">Senarai Inventori</h1>
-                <p class="text-slate-500 text-sm">Urus dan rekod aset secara berpusat.</p>
+                <h1 class="text-2xl font-bold text-slate-800">Senarai Inventori Aset</h1>
+                <p class="text-slate-500 text-sm">Pangkalan data utama Kew.PA</p>
             </div>
             <div class="relative w-full md:w-64">
                 <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400"></i>
-                <input type="text" placeholder="Cari aset..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                <input type="text" id="searchInput" onkeyup="carianData()" placeholder="Cari aset..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
             </div>
         </div>
 
         <div class="glass-card shadow-sm rounded-xl border border-slate-200 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200">
+                <table class="min-w-full divide-y divide-slate-200" id="asetTable">
                     <thead class="bg-slate-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">No. Pendaftaran</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Aset</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Kategori</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Lokasi</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Tindakan</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Tindakan</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-200" id="tableBody">
@@ -67,53 +70,60 @@
                 <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button>
             </div>
             <form id="asetForm" onsubmit="simpanData(event)">
-                <input type="hidden" id="asetId">
+                <input type="hidden" id="actionType" value="tambah">
+                <input type="hidden" id="rowIndexField">
                 
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">No. Pendaftaran</label>
-                        <input type="text" id="noDaftar" required placeholder="Cth: SKT/P/24/001" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="noDaftar" required placeholder="Cth: SKT/H/24/001" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-mono text-blue-700">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">No. Siri <span class="text-xs text-slate-400">(Pilihan)</span></label>
-                        <input type="text" id="noSiri" placeholder="Cth: SN123456" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">No. Siri</label>
+                        <input type="text" id="noSiri" placeholder="(Pilihan)" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                     </div>
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-slate-700 mb-1">Nama Aset</label>
-                    <input type="text" id="namaAset" required placeholder="Cth: Meja Murid Saiz 2" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="namaAset" required placeholder="Cth: Meja Guru" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">Kategori</label>
-                        <select id="kategoriAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="kategoriAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                             <option value="">Pilih...</option>
-                            <option value="Perabot">Perabot</option>
-                            <option value="Elektronik / PC">Elektronik / PC</option>
-                            <option value="Buku / ABM">Buku / ABM</option>
+                            <option value="Aset Bernilai Rendah">Aset Bernilai Rendah</option>
+                            <option value="Harta Modal">Harta Modal</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">Lokasi</label>
-                        <input type="text" id="lokasiAset" required placeholder="Cth: Kelas 6 Usaha" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="lokasiAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                            <option value="">Pilih Lokasi...</option>
+                            <option value="Bilik Guru">Bilik Guru</option>
+                            <option value="Makmal Komputer">Makmal Komputer</option>
+                            <option value="Pejabat Am">Pejabat Am</option>
+                            <option value="Bilik Darjah - Tahun 6">Bilik Darjah - Tahun 6</option>
+                            <option value="Bilik Darjah - Tahun 4">Bilik Darjah - Tahun 4</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                    <select id="statusAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="statusAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                         <option value="Baik">Baik</option>
-                        <option value="Rosak">Rosak</option>
-                        <option value="Dihapus Kira">Dihapus Kira</option>
+                        <option value="Sedang Diselenggara">Sedang Diselenggara</option>
+                        <option value="Rosak / Lupus">Rosak / Lupus</option>
                     </select>
                 </div>
 
                 <div class="flex justify-end gap-3">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md font-medium">Batal</button>
-                    <button type="submit" id="btnSimpan" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium flex items-center gap-2">
-                        Simpan Aset
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md font-medium text-sm">Batal</button>
+                    <button type="submit" id="btnSimpan" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium text-sm flex items-center gap-2">
+                        Simpan Rekod
                     </button>
                 </div>
             </form>
@@ -121,7 +131,6 @@
     </div>
 
     <script>
-        // MASUKKAN URL WEB APP ANDA DI SINI
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzJ_hJvfC-r2ZsV9iwVrQgGeq2cI6EPtTLjmNeCtcyR21S207jhvJE_LN9PY8fzQo4/exec'; 
         
         const modal = document.getElementById('asetModal');
@@ -129,10 +138,11 @@
         const tableBody = document.getElementById('tableBody');
         const btnSimpan = document.getElementById('btnSimpan');
 
-        function openModal() {
+        // FUNGSI BORANG (BUKA / TUTUP)
+        function openModal(jenisTindakan) {
             form.reset();
-            document.getElementById('asetId').value = '';
-            document.getElementById('modalTitle').innerText = 'Tambah Aset Baru';
+            document.getElementById('actionType').value = jenisTindakan;
+            document.getElementById('modalTitle').innerText = jenisTindakan === 'edit' ? 'Kemaskini Aset' : 'Tambah Aset Baru';
             modal.classList.remove('hidden');
         }
 
@@ -140,83 +150,166 @@
             modal.classList.add('hidden');
         }
 
-        // Fungsi Pintar: Auto-tambah nombor di hujung pendaftaran
         function autoIncrement(str) {
             if (!str) return '';
-            // Cari digit di hujung perkataan dan tambah 1, kekalkan digit kosong (cth: 001 -> 002)
             return str.replace(/(\d+)$/, function(match) {
                 return String(parseInt(match, 10) + 1).padStart(match.length, '0');
             });
         }
 
-        function duplicateRecord(noDaftar, nama, kategori, lokasi, status) {
-            document.getElementById('asetId').value = ''; 
-            document.getElementById('noDaftar').value = autoIncrement(noDaftar); // Auto-jana No Pendaftaran baru
-            document.getElementById('noSiri').value = ''; // Kosongkan nombor siri sebab ia unik untuk setiap unit
+        // FUNGSI DUPLICATE & EDIT
+        function panggilBorang(action, rowIndex, noDaftar, noSiri, nama, kategori, lokasi, status) {
+            document.getElementById('actionType').value = action;
+            document.getElementById('rowIndexField').value = rowIndex;
+            
+            document.getElementById('noDaftar').value = action === 'duplicate' ? autoIncrement(noDaftar) : noDaftar;
+            document.getElementById('noSiri').value = action === 'duplicate' ? '' : noSiri;
             document.getElementById('namaAset').value = nama;
             document.getElementById('kategoriAset').value = kategori;
-            document.getElementById('lokasiAset').value = lokasi;
+            
+            // Periksa jika lokasi dari database ada dalam pilihan dropdown
+            let selectLokasi = document.getElementById('lokasiAset');
+            let optionExists = Array.from(selectLokasi.options).some(opt => opt.value === lokasi);
+            if(!optionExists && lokasi) {
+                let newOption = new Option(lokasi, lokasi);
+                selectLokasi.add(newOption);
+            }
+            selectLokasi.value = lokasi;
             document.getElementById('statusAset').value = status || 'Baik';
             
-            document.getElementById('modalTitle').innerText = 'Duplicate Aset (Semak No. Pendaftaran)';
+            if (action === 'duplicate') {
+                document.getElementById('modalTitle').innerText = 'Duplicate Rekod';
+                document.getElementById('actionType').value = 'tambah'; // Duplicate bertindak sebagai tambah data baru
+            } else {
+                document.getElementById('modalTitle').innerText = 'Kemaskini Rekod';
+            }
             modal.classList.remove('hidden');
         }
 
+        // FUNGSI PADAM (DELETE) SATU REKOD
+        async function padamRekod(rowIndex, namaAset) {
+            if(confirm(`Adakah anda pasti mahu memadam rekod "${namaAset}"?\nData ini tidak boleh dikembalikan.`)) {
+                try {
+                    await fetch(scriptURL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'delete', rowIndex: rowIndex })
+                    });
+                    setTimeout(muatData, 800);
+                } catch (error) {
+                    alert('Gagal memadam rekod.');
+                }
+            }
+        }
+
+        // FUNGSI RESET SEMUA (DENGAN KATA LALUAN)
+        async function resetSemua() {
+            let pass = prompt("AMARAN: Ini akan memadam KESELURUHAN rekod inventori aset!\n\nSila masukkan kata laluan untuk sahkan tindakan ini:");
+            if(pass === "aset2026") {
+                if(confirm("Pengesahan Terakhir: Padam semua data sekarang?")) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-red-500 font-bold">Sedang memadam semua pangkalan data...</td></tr>';
+                    try {
+                        await fetch(scriptURL, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'reset' })
+                        });
+                        setTimeout(() => {
+                            alert('Semua rekod aset telah dibersihkan.');
+                            muatData();
+                        }, 1000);
+                    } catch (error) {
+                        alert('Gagal membersihkan data.');
+                    }
+                }
+            } else if (pass !== null) {
+                alert("Kata laluan salah. Tindakan dibatalkan.");
+            }
+        }
+
+        // MUAT DATA DARI SHEETS
         async function muatData() {
-            tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">Sedang memuat turun data...</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">Menyegerak data dari Google Sheets...</td></tr>';
             try {
-                // Tambah parameter untuk elak browser simpan cache lama
                 const response = await fetch(scriptURL + "?t=" + new Date().getTime());
                 const data = await response.json();
                 
                 tableBody.innerHTML = '';
                 
                 if(data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">Tiada rekod dijumpai.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">Pangkalan data inventori kosong. Sila mula mendaftar aset.</td></tr>';
                     return;
                 }
 
                 data.forEach(item => {
-                    // Selamatkan data dari undefined jika lajur kosong
-                    const noDaftar = item['No Pendaftaran'] || '-';
-                    const nama = item['Nama Aset'] || '-';
-                    const kategori = item['Kategori'] || '-';
-                    const lokasi = item['Lokasi'] || '-';
-                    const status = item['Status'] || 'Baik';
+                    const rowIdx = item['rowIndex'];
+                    const noDaftarStr = String(item['No Pendaftaran'] || '-').replace(/'/g, "\\'");
+                    const noSiriStr = String(item['No Siri'] || '').replace(/'/g, "\\'");
+                    const namaStr = String(item['Nama Aset'] || '-').replace(/'/g, "\\'");
+                    const katStr = String(item['Kategori'] || '-').replace(/'/g, "\\'");
+                    const lokStr = String(item['Lokasi'] || '-').replace(/'/g, "\\'");
+                    const statusStr = String(item['Status'] || 'Baik').replace(/'/g, "\\'");
+
+                    let badgeColor = statusStr === 'Baik' ? 'bg-green-100 text-green-700' : 
+                                     (statusStr === 'Rosak / Lupus' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700');
 
                     const row = `
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-700">${noDaftar}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">${nama}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${kategori}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${lokasi}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button onclick="duplicateRecord('${noDaftar}', '${nama}', '${kategori}', '${lokasi}', '${status}')" class="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded-md transition-colors border border-blue-100">
-                                    <i class="fa-regular fa-copy mr-1"></i> Duplicate
-                                </button>
+                        <tr class="hover:bg-slate-50 transition-colors search-row">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-800 border-l-4 border-blue-500">${item['No Pendaftaran'] || '-'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
+                                ${item['Nama Aset'] || '-'}
+                                <div class="text-xs text-slate-400 font-normal mt-0.5">SN: ${item['No Siri'] || 'Tiada'}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-slate-100 text-slate-600">${item['Kategori'] || '-'}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                <div>${item['Lokasi'] || '-'}</div>
+                                <span class="px-2 mt-1 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeColor}">${statusStr}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex justify-end gap-2">
+                                    <button onclick="panggilBorang('duplicate', ${rowIdx}, '${noDaftarStr}', '${noSiriStr}', '${namaStr}', '${katStr}', '${lokStr}', '${statusStr}')" title="Duplicate" class="text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 p-2 rounded transition-colors">
+                                        <i class="fa-regular fa-copy"></i>
+                                    </button>
+                                    <button onclick="panggilBorang('edit', ${rowIdx}, '${noDaftarStr}', '${noSiriStr}', '${namaStr}', '${katStr}', '${lokStr}', '${statusStr}')" title="Edit" class="text-slate-500 hover:text-green-600 bg-slate-100 hover:bg-green-50 p-2 rounded transition-colors">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="padamRekod(${rowIdx}, '${namaStr}')" title="Delete" class="text-slate-500 hover:text-red-600 bg-slate-100 hover:bg-red-50 p-2 rounded transition-colors">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
                     tableBody.insertAdjacentHTML('beforeend', row);
                 });
             } catch (error) {
-                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-red-500">Gagal memuat turun data. Semak konsol atau pastikan Script di "Deploy as New Version".</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-red-500">Gagal menyambung ke Google Sheets.</td></tr>';
             }
         }
 
+        // SIMPAN / KEMASKINI DATA
         async function simpanData(e) {
             e.preventDefault();
-            btnSimpan.innerText = 'Menyimpan...';
+            btnSimpan.innerText = 'Memproses...';
             btnSimpan.disabled = true;
 
-            const jsonData = {
-                id: document.getElementById('asetId').value,
-                no_daftar: document.getElementById('noDaftar').value,
-                no_siri: document.getElementById('noSiri').value,
-                nama_aset: document.getElementById('namaAset').value,
-                kategori: document.getElementById('kategoriAset').value,
-                lokasi: document.getElementById('lokasiAset').value,
-                status: document.getElementById('statusAset').value
+            const action = document.getElementById('actionType').value;
+            const payloadData = {
+                action: action,
+                rowIndex: document.getElementById('rowIndexField').value,
+                data: {
+                    id: new Date().getTime(),
+                    no_daftar: document.getElementById('noDaftar').value,
+                    no_siri: document.getElementById('noSiri').value,
+                    nama_aset: document.getElementById('namaAset').value,
+                    kategori: document.getElementById('kategoriAset').value,
+                    lokasi: document.getElementById('lokasiAset').value,
+                    status: document.getElementById('statusAset').value
+                }
             };
 
             try {
@@ -224,19 +317,26 @@
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(jsonData)
+                    body: JSON.stringify(payloadData)
                 });
                 
                 closeModal();
-                // Sengaja letak delay sedikit supaya Sheets sempat proses sebelum muat semula
-                setTimeout(() => {
-                    muatData();
-                }, 1000);
+                setTimeout(muatData, 1000); // Reload data selepas 1 saat
             } catch (error) {
-                alert('Berlaku ralat semasa menyimpan data.');
+                alert('Berlaku ralat sistem.');
             } finally {
-                btnSimpan.innerText = 'Simpan Aset';
+                btnSimpan.innerText = 'Simpan Rekod';
                 btnSimpan.disabled = false;
+            }
+        }
+
+        // FUNGSI CARIAN (LIVE SEARCH)
+        function carianData() {
+            let input = document.getElementById("searchInput").value.toLowerCase();
+            let rows = document.getElementsByClassName("search-row");
+            for (let i = 0; i < rows.length; i++) {
+                let text = rows[i].innerText.toLowerCase();
+                rows[i].style.display = text.includes(input) ? "" : "none";
             }
         }
 
