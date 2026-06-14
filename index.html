@@ -41,9 +41,22 @@
                 <h1 class="text-2xl font-bold text-slate-800">Senarai Inventori Kendalian</h1>
                 <p class="text-slate-500 text-sm">Sahkan kemasukan data daripada guru-guru kelas di sini.</p>
             </div>
-            <div class="relative w-full md:w-64">
-                <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400"></i>
-                <input type="text" id="searchInput" onkeyup="carianData()" placeholder="Cari aset atau lokasi..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+            
+            <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                <div class="relative w-full md:w-48">
+                    <select id="filterStatus" onchange="carianData()" class="w-full pl-3 pr-8 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm text-sm text-slate-700 bg-white font-medium appearance-none cursor-pointer">
+                        <option value="">Semua Status Fizikal</option>
+                        <option value="Baik">🟢 Baik</option>
+                        <option value="Sedang Diselenggara">🟡 Sedang Diselenggara</option>
+                        <option value="Rosak / Lupus">🔴 Rosak / Lupus</option>
+                    </select>
+                    <i class="fa-solid fa-filter absolute right-3 top-2.5 text-slate-400 pointer-events-none text-sm"></i>
+                </div>
+                
+                <div class="relative w-full md:w-64">
+                    <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400"></i>
+                    <input type="text" id="searchInput" onkeyup="carianData()" placeholder="Cari aset atau lokasi..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm text-sm">
+                </div>
             </div>
         </div>
 
@@ -177,10 +190,8 @@
 
     <script>
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzJ_hJvfC-r2ZsV9iwVrQgGeq2cI6EPtTLjmNeCtcyR21S207jhvJE_LN9PY8fzQo4/exec'; 
-        
         let dataTetapanGlobal = { lokasi: [], namaAset: [] };
 
-        // Kawalan Modal Biasa
         function openModal(jenisTindakan) {
             document.getElementById('asetForm').reset();
             document.getElementById('actionType').value = jenisTindakan;
@@ -190,7 +201,6 @@
         }
         function closeModal() { document.getElementById('asetModal').classList.add('hidden'); }
 
-        // Kawalan Modal Pukal
         function openModalPukal() {
             document.getElementById('pukalForm').reset();
             document.getElementById('pukalModal').classList.remove('hidden');
@@ -262,7 +272,6 @@
                 const dataAset = responseData.aset;
                 dataTetapanGlobal = responseData.tetapan; 
                 
-                // Populate Dropdowns (Biasa & Pukal)
                 const ddLokasi = document.getElementById('lokasiAset');
                 const ddNama = document.getElementById('namaAset');
                 const pukalLokasi = document.getElementById('pukalLokasi');
@@ -305,7 +314,7 @@
                         '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 border border-amber-300 animate-pulse shadow-sm"><i class="fa-solid fa-clock mr-1 mt-0.5"></i> Menunggu Semakan</span>';
 
                     let row = `
-                        <tr class="hover:bg-slate-50 transition-colors search-row">
+                        <tr class="hover:bg-slate-50 transition-colors search-row" data-status="${statusStr}">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-bold ${sahStr === 'Disahkan' ? 'text-blue-700 border-l-4 border-emerald-500' : 'text-amber-600 border-l-4 border-amber-500'}">${noDaftarStr}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
                                 ${namaStr}
@@ -327,10 +336,11 @@
                     `;
                     tableBody.insertAdjacentHTML('beforeend', row);
                 });
+                
+                carianData(); // Jalankan fungsi tapis/carian jika ada filter yang masih dipilih selepas muat semula
             } catch (error) { document.getElementById('tableBody').innerHTML = '<tr><td colspan="5">Ralat sambungan. Sila muat semula.</td></tr>'; }
         }
 
-        // Hantar Data Kelulusan Pukal
         async function simpanPukal(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSimpanPukal');
@@ -355,7 +365,6 @@
             finally { btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Luluskan Semua & Jana No Daftar'; btn.disabled = false; }
         }
 
-        // Hantar Data Tunggal (Biasa)
         async function simpanData(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSimpan');
@@ -385,13 +394,27 @@
             finally { btn.innerHTML = '<i class="fa-solid fa-check"></i> Simpan Rekod'; btn.disabled = false; }
         }
 
+        // FUNGSI CARIAN & TAPISAN (GABUNGAN TEKS & STATUS)
         function carianData() {
-            let input = document.getElementById("searchInput").value.toLowerCase();
+            let inputTeks = document.getElementById("searchInput").value.toLowerCase();
+            let inputStatus = document.getElementById("filterStatus").value;
             let rows = document.getElementsByClassName("search-row");
+            
             for (let i = 0; i < rows.length; i++) {
-                rows[i].style.display = rows[i].innerText.toLowerCase().includes(input) ? "" : "none";
+                let textKandungan = rows[i].innerText.toLowerCase();
+                let statusAset = rows[i].getAttribute("data-status"); // Ambil status dari attribute HTML
+                
+                let padanTeks = textKandungan.includes(inputTeks);
+                let padanStatus = (inputStatus === "" || statusAset === inputStatus);
+                
+                if (padanTeks && padanStatus) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
             }
         }
+        
         window.onload = muatData;
     </script>
 </body>
