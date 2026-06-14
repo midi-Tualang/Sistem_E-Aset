@@ -17,8 +17,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-school text-xl"></i>
-                    <span class="font-bold text-lg tracking-wide">E-Aset Sekolah</span>
+                    <i class="fa-solid fa-shield-halved text-xl text-amber-400"></i>
+                    <span class="font-bold text-lg tracking-wide">E-Aset <span class="text-xs bg-amber-500 text-white px-2 py-0.5 rounded ml-1 font-normal">Portal Admin</span></span>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="resetSemua()" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
@@ -35,12 +35,12 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">Senarai Inventori Aset</h1>
-                <p class="text-slate-500 text-sm">Pangkalan data utama Kew.PA</p>
+                <h1 class="text-2xl font-bold text-slate-800">Senarai Inventori Kendalian</h1>
+                <p class="text-slate-500 text-sm">Sahkan kemasukan data daripada guru-guru kelas di sini.</p>
             </div>
             <div class="relative w-full md:w-64">
                 <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400"></i>
-                <input type="text" id="searchInput" onkeyup="carianData()" placeholder="Cari aset..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                <input type="text" id="searchInput" onkeyup="carianData()" placeholder="Cari aset atau lokasi..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
             </div>
         </div>
 
@@ -49,10 +49,10 @@
                 <table class="min-w-full divide-y divide-slate-200" id="asetTable">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">No. Pendaftaran</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">No. Pendaftaran Rasmi</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Aset</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Kategori</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Lokasi</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Lokasi & Kategori</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status Pengesahan</th>
                             <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Tindakan</th>
                         </tr>
                     </thead>
@@ -66,7 +66,7 @@
     <div id="asetModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center backdrop-blur-sm z-50 overflow-y-auto">
         <div class="bg-white rounded-xl shadow-xl w-11/12 md:w-1/2 max-w-lg p-6 my-8">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-slate-800" id="modalTitle">Tambah Aset Baru</h2>
+                <h2 class="text-xl font-bold text-slate-800" id="modalTitle">Semak & Sahkan Aset</h2>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button>
             </div>
             <form id="asetForm" onsubmit="simpanData(event)">
@@ -75,52 +75,58 @@
                 
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">No. Pendaftaran</label>
-                        <input type="text" id="noDaftar" required placeholder="Cth: SKT/H/24/001" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-mono text-blue-700">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">No. Pendaftaran Asas</label>
+                        <input type="text" id="noDaftar" required class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm font-mono text-blue-700 bg-slate-50">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">No. Siri</label>
-                        <input type="text" id="noSiri" placeholder="(Pilihan)" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <input type="text" id="noSiri" placeholder="(Pilihan)" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm">
                     </div>
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-slate-700 mb-1">Nama Aset</label>
-                    <select id="namaAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    <select id="namaAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm">
                         <option value="">Pilih Nama Aset...</option>
-                        </select>
+                    </select>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Kategori</label>
-                        <select id="kategoriAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                            <option value="">Pilih...</option>
-                            <option value="Aset Bernilai Rendah">Aset Bernilai Rendah</option>
-                            <option value="Harta Modal">Harta Modal</option>
+                        <label class="block text-sm font-medium text-slate-700 mb-1 text-blue-800 font-bold">Harga Seunit (RM)</label>
+                        <input type="number" step="0.01" id="hargaAset" required placeholder="Cth: 2500" onkeyup="autoSetKategori(this.value)" class="w-full px-3 py-2 border-2 border-blue-400 rounded-md text-sm font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Kategori (Kew.PA)</label>
+                        <select id="kategoriAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm bg-slate-50 pointer-events-none font-bold text-blue-700">
+                            <option value="Belum Disahkan">Belum Disahkan</option>
+                            <option value="Aset Bernilai Rendah">Aset Bernilai Rendah (R)</option>
+                            <option value="Harta Modal">Harta Modal (H)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Lokasi</label>
+                        <select id="lokasiAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm">
+                            <option value="">Pilih Lokasi...</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Lokasi</label>
-                        <select id="lokasiAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                            <option value="">Pilih Lokasi...</option>
-                            </select>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Status Fizikal</label>
+                        <select id="statusAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm">
+                            <option value="Baik">Baik</option>
+                            <option value="Sedang Diselenggara">Sedang Diselenggara</option>
+                            <option value="Rosak / Lupus">Rosak / Lupus</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                    <select id="statusAset" required class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                        <option value="Baik">Baik</option>
-                        <option value="Sedang Diselenggara">Sedang Diselenggara</option>
-                        <option value="Rosak / Lupus">Rosak / Lupus</option>
-                    </select>
-                </div>
-
                 <div class="flex justify-end gap-3">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md font-medium text-sm">Batal</button>
-                    <button type="submit" id="btnSimpan" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium text-sm flex items-center gap-2">
-                        Simpan Rekod
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md text-sm">Batal</button>
+                    <button type="submit" id="btnSimpan" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-semibold text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-check-double"></i> Simpan & Sahkan No. Siri
                     </button>
                 </div>
             </form>
@@ -128,25 +134,31 @@
     </div>
 
     <script>
-        // MASUKKAN URL ANDA SEPERTI BIASA
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzJ_hJvfC-r2ZsV9iwVrQgGeq2cI6EPtTLjmNeCtcyR21S207jhvJE_LN9PY8fzQo4/exec'; 
         
         const modal = document.getElementById('asetModal');
         const form = document.getElementById('asetForm');
         const tableBody = document.getElementById('tableBody');
         const btnSimpan = document.getElementById('btnSimpan');
-
         let dataTetapanGlobal = { lokasi: [], namaAset: [] };
 
         function openModal(jenisTindakan) {
             form.reset();
             document.getElementById('actionType').value = jenisTindakan;
-            document.getElementById('modalTitle').innerText = jenisTindakan === 'edit' ? 'Kemaskini Aset' : 'Tambah Aset Baru';
+            document.getElementById('kategoriAset').value = "Belum Disahkan";
+            document.getElementById('modalTitle').innerText = 'Tambah Aset Manual';
             modal.classList.remove('hidden');
         }
 
-        function closeModal() {
-            modal.classList.add('hidden');
+        function closeModal() { modal.classList.add('hidden'); }
+
+        // AUTOMATIK TENTUKAN H / R DI SCREEN BORANG APABILA TAIP HARGA
+        function autoSetKategori(val) {
+            let harga = parseFloat(val) || 0;
+            let katField = document.getElementById('kategoriAset');
+            if(harga === 0) { katField.value = "Belum Disahkan"; }
+            else if(harga >= 3000) { katField.value = "Harta Modal"; }
+            else { katField.value = "Aset Bernilai Rendah"; }
         }
 
         function autoIncrement(str) {
@@ -156,30 +168,31 @@
             });
         }
 
-        function panggilBorang(action, rowIndex, noDaftar, noSiri, nama, kategori, lokasi, status) {
+        function panggilBorang(action, rowIndex, noDaftar, noSiri, nama, kategori, lokasi, status, harga) {
             document.getElementById('actionType').value = action;
             document.getElementById('rowIndexField').value = rowIndex;
             
             document.getElementById('noDaftar').value = action === 'duplicate' ? autoIncrement(noDaftar) : noDaftar;
             document.getElementById('noSiri').value = action === 'duplicate' ? '' : noSiri;
-            
-            // Masukkan nilai ke dropdown
             document.getElementById('namaAset').value = nama;
-            document.getElementById('kategoriAset').value = kategori;
+            document.getElementById('kategoriAset').value = action === 'duplicate' ? 'Belum Disahkan' : kategori;
             document.getElementById('lokasiAset').value = lokasi;
             document.getElementById('statusAset').value = status || 'Baik';
+            document.getElementById('hargaAset').value = action === 'duplicate' ? '0' : harga;
             
+            autoSetKategori(document.getElementById('hargaAset').value);
+
             if (action === 'duplicate') {
-                document.getElementById('modalTitle').innerText = 'Duplicate Rekod';
+                document.getElementById('modalTitle').innerText = 'Duplicate Rekod (Sediaan Semakan)';
                 document.getElementById('actionType').value = 'tambah'; 
             } else {
-                document.getElementById('modalTitle').innerText = 'Kemaskini Rekod';
+                document.getElementById('modalTitle').innerText = 'Semak, Sahkan & Kemaskini';
             }
             modal.classList.remove('hidden');
         }
 
         async function padamRekod(rowIndex, namaAset) {
-            if(confirm(`Adakah anda pasti mahu memadam rekod "${namaAset}"?\nData ini tidak boleh dikembalikan.`)) {
+            if(confirm(`Padam rekod "${namaAset}"?`)) {
                 try {
                     await fetch(scriptURL, {
                         method: 'POST', mode: 'no-cors',
@@ -187,37 +200,32 @@
                         body: JSON.stringify({ action: 'delete', rowIndex: rowIndex })
                     });
                     setTimeout(muatData, 800);
-                } catch (error) { alert('Gagal memadam rekod.'); }
+                } catch (error) { alert('Ralat.'); }
             }
         }
 
         async function resetSemua() {
-            let pass = prompt("AMARAN: Ini akan memadam KESELURUHAN rekod inventori aset!\nSila masukkan kata laluan:");
+            let pass = prompt("Masukkan kata laluan keselamatan:");
             if(pass === "aset2026") {
-                if(confirm("Pengesahan Terakhir: Padam semua data sekarang?")) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-red-500 font-bold">Sedang memadam pangkalan data...</td></tr>';
+                if(confirm("Padam semua pangkalan data?")) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-red-500 font-bold">Sedang memadam...</td></tr>';
                     try {
-                        await fetch(scriptURL, {
-                            method: 'POST', mode: 'no-cors',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ action: 'reset' })
-                        });
-                        setTimeout(() => { muatData(); }, 1000);
-                    } catch (error) { alert('Gagal membersihkan data.'); }
+                        await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'reset' }) });
+                        setTimeout(muatData, 1000);
+                    } catch (error) { alert('Ralat.'); }
                 }
-            } else if (pass !== null) { alert("Kata laluan salah."); }
+            } else if (pass !== null) { alert("Salah."); }
         }
 
         async function muatData() {
-            tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">Menyegerak data dari Google Sheets...</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">Menyegerak Sistem Pengesahan Aset...</td></tr>';
             try {
                 const response = await fetch(scriptURL + "?t=" + new Date().getTime());
                 const responseData = await response.json();
                 
                 const dataAset = responseData.aset;
-                dataTetapanGlobal = responseData.tetapan; // Simpan senarai dropdown
+                dataTetapanGlobal = responseData.tetapan; 
                 
-                // --- KEMASKINI DROPDOWN FORM ---
                 const selectLokasi = document.getElementById('lokasiAset');
                 const selectNama = document.getElementById('namaAset');
                 
@@ -226,12 +234,11 @@
 
                 selectNama.innerHTML = '<option value="">Pilih Nama Aset...</option>';
                 dataTetapanGlobal.namaAset.forEach(nama => selectNama.add(new Option(nama, nama)));
-                // -------------------------------
 
                 tableBody.innerHTML = '';
                 
                 if(dataAset.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">Pangkalan data inventori kosong.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">Tiada data inventori.</td></tr>';
                     return;
                 }
 
@@ -240,46 +247,46 @@
                     const noDaftarStr = String(item['No Pendaftaran'] || '-').replace(/'/g, "\\'");
                     const noSiriStr = String(item['No Siri'] || '').replace(/'/g, "\\'");
                     const namaStr = String(item['Nama Aset'] || '-').replace(/'/g, "\\'");
-                    const katStr = String(item['Kategori'] || '-').replace(/'/g, "\\'");
+                    const katStr = String(item['Kategori'] || 'Belum Disahkan').replace(/'/g, "\\'");
                     const lokStr = String(item['Lokasi'] || '-').replace(/'/g, "\\'");
                     const statusStr = String(item['Status'] || 'Baik').replace(/'/g, "\\'");
+                    const hargaStr = String(item['Harga (RM)'] || '0').replace(/'/g, "\\'");
+                    const sahStr = String(item['Pengesahan'] || 'Menunggu Pengesahan');
 
-                    let badgeColor = statusStr === 'Baik' ? 'bg-green-100 text-green-700' : 
-                                     (statusStr === 'Rosak / Lupus' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700');
+                    // Badge Pengesahan Aliran Kerja
+                    let sahBadge = sahStr === 'Disahkan' ? 
+                        '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800"><i class="fa-solid fa-circle-check mr-1 mt-0.5"></i> Disahkan Rasmi</span>' :
+                        '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 animate-pulse"><i class="fa-solid fa-clock mr-1 mt-0.5"></i> Semakan Admin</span>';
 
-                    const row = `
+                    let row = `
                         <tr class="hover:bg-slate-50 transition-colors search-row">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-800 border-l-4 border-blue-500">${item['No Pendaftaran'] || '-'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-bold ${sahStr === 'Disahkan' ? 'text-blue-700 border-l-4 border-emerald-500' : 'text-slate-400 border-l-4 border-amber-500'}">${noDaftarStr}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
-                                ${item['Nama Aset'] || '-'}
-                                <div class="text-xs text-slate-400 font-normal mt-0.5">SN: ${item['No Siri'] || 'Tiada'}</div>
+                                ${namaStr}
+                                <div class="text-xs text-slate-400 font-normal mt-0.5">SN: ${noSiriStr || 'Tiada'} | Nilai: RM ${hargaStr}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-slate-100 text-slate-600">${item['Kategori'] || '-'}</span>
+                                <div class="font-semibold text-slate-700">${lokStr}</div>
+                                <div class="text-xs text-slate-400">${katStr}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                                <div>${item['Lokasi'] || '-'}</div>
-                                <span class="px-2 mt-1 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeColor}">${statusStr}</span>
-                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">${sahBadge}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end gap-2">
-                                    <button onclick="panggilBorang('duplicate', ${rowIdx}, '${noDaftarStr}', '${noSiriStr}', '${namaStr}', '${katStr}', '${lokStr}', '${statusStr}')" class="text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 p-2 rounded transition-colors"><i class="fa-regular fa-copy"></i></button>
-                                    <button onclick="panggilBorang('edit', ${rowIdx}, '${noDaftarStr}', '${noSiriStr}', '${namaStr}', '${katStr}', '${lokStr}', '${statusStr}')" class="text-slate-500 hover:text-green-600 bg-slate-100 hover:bg-green-50 p-2 rounded transition-colors"><i class="fa-solid fa-pen"></i></button>
-                                    <button onclick="padamRekod(${rowIdx}, '${namaStr}')" class="text-slate-500 hover:text-red-600 bg-slate-100 hover:bg-red-50 p-2 rounded transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                                    <button onclick="panggilBorang('duplicate', ${rowIdx}, '${noDaftarStr}', '${noSiriStr}', '${namaStr}', '${katStr}', '${lokStr}', '${statusStr}', '${hargaStr}')" title="Duplicate" class="text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 p-2 rounded"><i class="fa-regular fa-copy"></i></button>
+                                    <button onclick="panggilBorang('edit', ${rowIdx}, '${noDaftarStr}', '${noSiriStr}', '${namaStr}', '${katStr}', '${lokStr}', '${statusStr}', '${hargaStr}')" title="Sahkan / Edit" class="${sahStr === 'Disahkan' ? 'text-slate-500 hover:text-green-600 bg-slate-100' : 'text-amber-600 hover:text-white hover:bg-amber-500 bg-amber-50'} p-2 rounded transition-all"><i class="fa-solid fa-signature"></i></button>
+                                    <button onclick="padamRekod(${rowIdx}, '${namaStr}')" title="Padam" class="text-slate-500 hover:text-red-600 bg-slate-100 p-2 rounded"><i class="fa-solid fa-trash-can"></i></button>
                                 </div>
                             </td>
                         </tr>
                     `;
                     tableBody.insertAdjacentHTML('beforeend', row);
                 });
-            } catch (error) {
-                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-red-500">Gagal menyambung ke Google Sheets.</td></tr>';
-            }
+            } catch (error) { tableBody.innerHTML = '<tr><td colspan="5">Ralat sambungan.</td></tr>'; }
         }
 
         async function simpanData(e) {
             e.preventDefault();
-            btnSimpan.innerText = 'Memproses...';
+            btnSimpan.innerText = 'Memproses Kelulusan...';
             btnSimpan.disabled = true;
 
             const payloadData = {
@@ -292,34 +299,27 @@
                     nama_aset: document.getElementById('namaAset').value,
                     kategori: document.getElementById('kategoriAset').value,
                     lokasi: document.getElementById('lokasiAset').value,
-                    status: document.getElementById('statusAset').value
+                    status: document.getElementById('statusAset').value,
+                    harga: document.getElementById('hargaAset').value,
+                    pengesahan: 'Disahkan' // Automatik ditukar ke 'Disahkan' apabila Admin simpan
                 }
             };
 
             try {
-                await fetch(scriptURL, {
-                    method: 'POST', mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payloadData)
-                });
+                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadData) });
                 closeModal();
                 setTimeout(muatData, 1000); 
-            } catch (error) { alert('Berlaku ralat sistem.'); } 
-            finally {
-                btnSimpan.innerText = 'Simpan Rekod';
-                btnSimpan.disabled = false;
-            }
+            } catch (error) { alert('Ralat.'); } 
+            finally { btnSimpan.innerText = 'Simpan Rekod'; btnSimpan.disabled = false; }
         }
 
         function carianData() {
             let input = document.getElementById("searchInput").value.toLowerCase();
             let rows = document.getElementsByClassName("search-row");
             for (let i = 0; i < rows.length; i++) {
-                let text = rows[i].innerText.toLowerCase();
-                rows[i].style.display = text.includes(input) ? "" : "none";
+                rows[i].style.display = rows[i].innerText.toLowerCase().includes(input) ? "" : "none";
             }
         }
-
         window.onload = muatData;
     </script>
 </body>
