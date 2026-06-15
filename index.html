@@ -34,15 +34,12 @@
             body.qr-print-mode #qrPrintArea { display: flex !important; }
             body:not(.qr-print-mode) #qrPrintArea { display: none !important; }
 
-            /* Mod 4: Cetak Label QR Pukal */
             body.qr-bulk-print-mode .glass-card { display: none !important; }
             body.qr-bulk-print-mode nav { display: none !important; }
             body.qr-bulk-print-mode .main-header { display: none !important; }
             body.qr-bulk-print-mode #qrBulkPrintArea { display: block !important; }
             body:not(.qr-bulk-print-mode) #qrBulkPrintArea { display: none !important; }
         }
-
-        /* Arahan elak label terpotong dua muka surat */
         .print-label-item { page-break-inside: avoid; }
     </style>
 </head>
@@ -60,11 +57,9 @@
                     <button id="btnAuthAdmin" onclick="kendaliButangAuth()" class="bg-blue-900 hover:bg-blue-950 text-white px-3 py-2 rounded-lg text-sm font-bold transition-all shadow-inner border border-blue-700/50 flex items-center gap-2">
                         <i class="fa-solid fa-lock text-amber-400" id="iconAuth"></i><span id="txtAuth">Log Masuk Admin</span>
                     </button>
-
                     <span class="text-blue-700 px-1">|</span>
-
                     <button onclick="pastikanAdmin(() => bukaPanelTetapan())" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm" title="Tetapan Sistem">
-                        <i class="fa-solid fa-cogs"></i>
+                        <i class="fa-solid fa-cogs"></i><span class="hidden md:inline ml-2">Tetapan</span>
                     </button>
                     <button onclick="cetakQRPukal()" class="bg-sky-100 hover:bg-sky-200 text-sky-900 px-3 py-2 rounded-lg text-sm font-bold transition-all shadow-sm">
                         <i class="fa-solid fa-qrcode"></i><span class="hidden lg:inline ml-1">Cetak QR Pukal</span>
@@ -80,6 +75,9 @@
                     </button>
                     <button onclick="pastikanAdmin(() => openModal('tambah'))" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
                         <i class="fa-solid fa-plus"></i><span class="hidden md:inline ml-1">Aset Baru</span>
+                    </button>
+                    <button onclick="resetSemua()" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
+                        <i class="fa-solid fa-triangle-exclamation"></i><span class="hidden md:inline ml-1">Reset</span>
                     </button>
                 </div>
             </div>
@@ -171,16 +169,41 @@
         </div>
 
         <div id="qrBulkPrintArea" class="hidden print:hidden w-full max-w-full mx-auto bg-white text-black">
-            <div id="qrBulkGrid" class="grid grid-cols-3 gap-6 p-4">
-                </div>
+            <div id="qrBulkGrid" class="grid grid-cols-3 gap-6 p-4"></div>
         </div>
-
     </main>
 
-    <div id="tetapanModal" class="fixed inset-0 bg-slate-900 bg-opacity-60 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden p-4"><div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh]"><div class="flex justify-between items-center p-5 border-b border-slate-200 bg-slate-50 rounded-t-xl"><h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-sliders text-blue-600 mr-2"></i>Panel Tetapan Pangkalan Data</h2><button onclick="tutupPanelTetapan()" class="text-slate-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button></div><div class="flex flex-col md:flex-row flex-1 overflow-hidden p-5 gap-6"><div class="flex-1 flex flex-col"><h3 class="font-bold text-slate-700 mb-3 border-b pb-2"><i class="fa-solid fa-box-open mr-2 text-slate-400"></i>Urus Nama Aset</h3><div class="flex gap-2 mb-3"><input type="text" id="inputBaruNamaAset" placeholder="Cth: Papan Pintar" class="flex-1 px-3 py-2 border rounded text-sm"><button onclick="tambahTetapan('namaAset')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"><i class="fa-solid fa-plus"></i></button></div><div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listNamaAset"></div></div><div class="flex-1 flex flex-col"><h3 class="font-bold text-slate-700 mb-3 pb-2 border-b"><i class="fa-solid fa-map-location-dot mr-2 text-slate-400"></i>Urus Lokasi Premis</h3><div class="flex gap-2 mb-3"><input type="text" id="inputBaruLokasi" placeholder="Cth: Dewan Utama" class="flex-1 px-3 py-2 border rounded text-sm"><button onclick="tambahTetapan('lokasi')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"><i class="fa-solid fa-plus"></i></button></div><div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listLokasi"></div></div></div><div class="p-4 border-t bg-slate-50 rounded-b-xl flex justify-end"><button onclick="tutupPanelTetapan()" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-4 py-2 rounded-lg font-bold text-sm">Tutup Panel</button></div></div></div>
+    <div id="tetapanModal" class="fixed inset-0 bg-slate-900 bg-opacity-60 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center p-5 border-b border-slate-200 bg-slate-50 rounded-t-xl">
+                <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-sliders text-blue-600 mr-2"></i>Panel Tetapan Pangkalan Data</h2>
+                <button onclick="tutupPanelTetapan()" class="text-slate-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
+            </div>
+            <div class="flex flex-col md:flex-row flex-1 overflow-hidden p-5 gap-6">
+                <div class="flex-1 flex flex-col">
+                    <h3 class="font-bold text-slate-700 mb-3 border-b pb-2"><i class="fa-solid fa-box-open mr-2 text-slate-400"></i>Urus Nama Aset</h3>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="inputBaruNamaAset" placeholder="Cth: Papan Pintar" class="flex-1 px-3 py-2 border rounded text-sm">
+                        <button onclick="tambahTetapan('namaAset')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm min-w-[40px] flex justify-center"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listNamaAset"></div>
+                </div>
+                <div class="flex-1 flex flex-col">
+                    <h3 class="font-bold text-slate-700 mb-3 pb-2 border-b"><i class="fa-solid fa-map-location-dot mr-2 text-slate-400"></i>Urus Lokasi Premis</h3>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="inputBaruLokasi" placeholder="Cth: Dewan Utama" class="flex-1 px-3 py-2 border rounded text-sm">
+                        <button onclick="tambahTetapan('lokasi')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm min-w-[40px] flex justify-center"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listLokasi"></div>
+                </div>
+            </div>
+            <div class="p-4 border-t bg-slate-50 rounded-b-xl flex justify-end">
+                <button onclick="tutupPanelTetapan()" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-4 py-2 rounded-lg font-bold text-sm">Tutup Panel</button>
+            </div>
+        </div>
+    </div>
     
     <div id="asetModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden"><div class="bg-white rounded-xl shadow-xl w-11/12 md:w-1/2 max-w-lg p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold" id="modalTitle">Borang</h2><button onclick="closeModal()" class="text-slate-400 text-2xl">&times;</button></div><form id="asetForm" onsubmit="simpanData(event)"><input type="hidden" id="actionType"><input type="hidden" id="rowIndexField"><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm">No Daftar</label><input type="text" id="noDaftar" class="w-full px-3 py-2 border rounded bg-slate-50 font-bold text-blue-700"></div><div><label class="block text-sm">No Siri</label><input type="text" id="noSiri" class="w-full px-3 py-2 border rounded"></div></div><div class="mb-4"><label class="block text-sm">Nama Aset</label><select id="namaAset" class="w-full px-3 py-2 border rounded"></select></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm">Harga (RM)</label><input type="number" step="0.01" id="hargaAset" onkeyup="autoSetKategori(this.value)" class="w-full px-3 py-2 border rounded border-blue-400 font-bold"></div><div><label class="block text-sm">Kategori</label><select id="kategoriAset" class="w-full px-3 py-2 border rounded bg-slate-100 pointer-events-none"><option value="Belum Disahkan">Belum Disahkan</option><option value="Aset Bernilai Rendah">Aset Bernilai Rendah</option><option value="Harta Modal">Harta Modal</option></select></div></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm">Lokasi</label><select id="lokasiAset" class="w-full px-3 py-2 border rounded"></select></div><div><label class="block text-sm">Status</label><select id="statusAset" class="w-full px-3 py-2 border rounded"><option>Baik</option><option>Sedang Diselenggara</option><option>Rosak / Lupus</option></select></div></div><div class="flex justify-end gap-2"><button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-200 rounded">Batal</button><button type="submit" id="btnSimpan" class="px-4 py-2 bg-emerald-600 text-white rounded">Simpan / Sahkan</button></div></form></div></div>
-    
     <div id="pukalModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden"><div class="bg-white rounded-xl shadow-xl w-11/12 md:w-1/2 max-w-lg p-6 border-t-8 border-amber-500"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Sahkan Pukal</h2><button onclick="closeModalPukal()" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button></div><form id="pukalForm" onsubmit="simpanPukal(event)"><div class="mb-4"><label class="block text-sm">Nama Aset</label><select id="pukalNamaAset" class="w-full px-3 py-2 border rounded"></select></div><div class="mb-4"><label class="block text-sm">Lokasi</label><select id="pukalLokasi" class="w-full px-3 py-2 border rounded"></select></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm text-blue-700 font-bold">Harga (RM)</label><input type="number" step="0.01" id="pukalHarga" required class="w-full px-3 py-2 border border-blue-400 rounded font-bold"></div><div><label class="block text-sm text-emerald-700 font-bold">No. Pendaftaran Asas</label><input type="text" id="pukalNoDaftar" placeholder="Cth: SKT/24/001" required class="w-full px-3 py-2 border border-emerald-400 rounded font-bold uppercase"></div></div><p class="text-xs text-slate-500 mb-4">*Sistem akan membina siri secara automatik berdasarkan "No. Pendaftaran Asas" di atas untuk keseluruhan kuantiti rekod.</p><div class="flex justify-end gap-2"><button type="button" onclick="closeModalPukal()" class="px-4 py-2 bg-slate-200 rounded font-medium">Batal</button><button type="submit" id="btnSimpanPukal" class="px-4 py-2 bg-amber-500 rounded font-bold shadow-sm">Sahkan & Luluskan</button></div></form></div></div>
 
     <script>
@@ -224,78 +247,35 @@
             }
         }
 
-        // ====================================================================
-        // FUNGSI BARU: CETAK QR PUKAL (BULK QR PRINT)
-        // ====================================================================
         function cetakQRPukal() {
-            const rows = document.querySelectorAll('.search-row');
-            let qrArray = [];
-            
-            // Cari data perabot yang wujud di skrin sahaja (filtered)
+            const rows = document.querySelectorAll('.search-row'); let qrArray = [];
             rows.forEach(row => {
                 if (row.style.display !== 'none') {
-                    let nd = row.getAttribute('data-nodaftar');
-                    let na = row.getAttribute('data-nama');
-                    let l = row.getAttribute('data-lokasi');
-                    
-                    // Pastikan perabot itu sudah disahkan (ada nombor daftar)
-                    if(nd && nd !== 'MENUNGGU DAFTAR' && nd !== '-') {
-                        qrArray.push({ noDaftar: nd, namaAset: na, lokasi: l });
-                    }
+                    let nd = row.getAttribute('data-nodaftar'); let na = row.getAttribute('data-nama'); let l = row.getAttribute('data-lokasi');
+                    if(nd && nd !== 'MENUNGGU DAFTAR' && nd !== '-') qrArray.push({ noDaftar: nd, namaAset: na, lokasi: l });
                 }
             });
+            if (qrArray.length === 0) { alert("Tiada aset yang disahkan (bersiri) dijumpai dalam carian anda untuk dicetak QR."); return; }
+            if (qrArray.length > 50) { if(!confirm(`Amaran: Anda akan mencetak ${qrArray.length} pelekat QR serentak. Ini mungkin mengambil masa. Teruskan?`)) return; }
 
-            if (qrArray.length === 0) {
-                alert("Tiada aset yang disahkan (bersiri) dijumpai dalam carian anda untuk dicetak QR.");
-                return;
-            }
-
-            if (qrArray.length > 50) {
-                if(!confirm(`Amaran: Anda akan mencetak ${qrArray.length} pelekat QR serentak. Ini mungkin mengambil masa 2-3 saat untuk dimuat turun. Teruskan?`)) return;
-            }
-
-            let gridHtml = '';
-            let urlBersih = window.location.href.split('?')[0];
-
+            let gridHtml = ''; let urlBersih = window.location.href.split('?')[0];
             qrArray.forEach(item => {
                 let pautanLookUp = `${urlBersih}?search=${encodeURIComponent(item.noDaftar)}`;
                 let urlApiQR = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(pautanLookUp)}`;
-                
-                gridHtml += `
-                    <div class="print-label-item flex flex-col items-center justify-center text-center p-3 border-2 border-slate-800 bg-white text-black rounded-md h-max">
-                        <div class="font-black text-xs tracking-wider border-b-2 border-slate-800 pb-1 mb-2 w-full uppercase">LABEL HARTA SEKOLAH</div>
-                        <img src="${urlApiQR}" alt="QR" class="w-24 h-24 mx-auto mb-1">
-                        <div class="font-mono font-black text-[13px] tracking-tight text-slate-950">${item.noDaftar}</div>
-                        <div class="text-[10px] font-bold uppercase mt-0.5 truncate w-full px-1">${item.namaAset}</div>
-                        <div class="text-[8px] text-slate-700 font-medium italic mt-0.5 w-full truncate px-1">Lokasi: ${item.lokasi}</div>
-                    </div>
-                `;
+                gridHtml += `<div class="print-label-item flex flex-col items-center justify-center text-center p-3 border-2 border-slate-800 bg-white text-black rounded-md h-max"><div class="font-black text-xs tracking-wider border-b-2 border-slate-800 pb-1 mb-2 w-full uppercase">LABEL HARTA SEKOLAH</div><img src="${urlApiQR}" alt="QR" class="w-24 h-24 mx-auto mb-1"><div class="font-mono font-black text-[13px] tracking-tight text-slate-950">${item.noDaftar}</div><div class="text-[10px] font-bold uppercase mt-0.5 truncate w-full px-1">${item.namaAset}</div><div class="text-[8px] text-slate-700 font-medium italic mt-0.5 w-full truncate px-1">Lokasi: ${item.lokasi}</div></div>`;
             });
-
             document.getElementById('qrBulkGrid').innerHTML = gridHtml;
-
-            const tajukAsal = document.title;
-            document.title = `LABEL_QR_PUKAL`;
-            document.body.classList.add('qr-bulk-print-mode');
-            
-            // Beri masa sedikit untuk browser muat turun banyak gambar QR dari pelayan API
+            const tajukAsal = document.title; document.title = `LABEL_QR_PUKAL`; document.body.classList.add('qr-bulk-print-mode');
             let delayMs = qrArray.length > 20 ? 1500 : 800;
-            
-            setTimeout(() => {
-                window.print();
-                setTimeout(() => { document.body.classList.remove('qr-bulk-print-mode'); document.title = tajukAsal; }, 500);
-            }, delayMs);
+            setTimeout(() => { window.print(); setTimeout(() => { document.body.classList.remove('qr-bulk-print-mode'); document.title = tajukAsal; }, 500); }, delayMs);
         }
 
-        // Cetak Tunggal QR
         function cetakLabelQR(noDaftar, namaAset, lokasi) {
             if (noDaftar === 'MENUNGGU DAFTAR' || !noDaftar || noDaftar === '-') { alert("Ralat: Aset belum disahkan."); return; }
-            let urlBersih = window.location.href.split('?')[0]; let pautanLookUp = `${urlBersih}?search=${encodeURIComponent(noDaftar)}`;
-            let urlApiQR = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(pautanLookUp)}`;
+            let urlBersih = window.location.href.split('?')[0]; let pautanLookUp = `${urlBersih}?search=${encodeURIComponent(noDaftar)}`; let urlApiQR = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(pautanLookUp)}`;
             document.getElementById('qrCodeImgArea').innerHTML = `<img src="${urlApiQR}" alt="QR" class="w-28 h-24 mx-auto">`;
             document.getElementById('qrNoDaftar').innerText = noDaftar; document.getElementById('qrNamaAset').innerText = namaAset; document.getElementById('qrLokasi').innerText = `Lokasi: ${lokasi}`;
-            const tajukAsal = document.title; document.title = `LABEL_QR_${noDaftar.replace(/\//g, '-')}`;
-            document.body.classList.add('qr-print-mode'); window.print();
+            const tajukAsal = document.title; document.title = `LABEL_QR_${noDaftar.replace(/\//g, '-')}`; document.body.classList.add('qr-print-mode'); window.print();
             setTimeout(() => { document.body.classList.remove('qr-print-mode'); document.title = tajukAsal; }, 500);
         }
 
@@ -329,16 +309,42 @@
             setTimeout(() => { document.body.classList.remove('summary-print-mode'); document.getElementById('tajukCetak').innerText = "Senarai Inventori Aset Alih"; document.getElementById('subTajukCetak').innerText = ""; document.title = tajukAsal; }, 500);
         }
 
+        // ====================================================================
+        // FUNGSI TETAPAN DIPERBAIKI (VISUAL DELAY FIXED)
+        // ====================================================================
         function bukaPanelTetapan() { renderSenaraiTetapan(); document.getElementById('tetapanModal').classList.remove('hidden'); }
         function tutupPanelTetapan() { document.getElementById('tetapanModal').classList.add('hidden'); }
+        
         function renderSenaraiTetapan() {
-            const listNama = document.getElementById('listNamaAset'), listLokasi = document.getElementById('listLokasi'); listNama.innerHTML = ''; listLokasi.innerHTML = '';
+            const listNama = document.getElementById('listNamaAset'), listLokasi = document.getElementById('listLokasi');
+            listNama.innerHTML = ''; listLokasi.innerHTML = '';
             dataTetapanGlobal.namaAset.forEach(nama => { listNama.innerHTML += `<div class="flex justify-between items-center bg-white p-2 mb-1 rounded border shadow-sm"><span class="text-sm font-medium text-slate-700">${nama}</span><div class="flex gap-1"><button onclick="editTetapan('namaAset', '${nama}')" class="text-blue-500 p-1"><i class="fa-solid fa-pen"></i></button><button onclick="padamTetapan('namaAset', '${nama}')" class="text-red-500 p-1"><i class="fa-solid fa-trash-can"></i></button></div></div>`; });
             dataTetapanGlobal.lokasi.forEach(lok => { listLokasi.innerHTML += `<div class="flex justify-between items-center bg-white p-2 mb-1 rounded border shadow-sm"><span class="text-sm font-medium text-slate-700">${lok}</span><div class="flex gap-1"><button onclick="editTetapan('lokasi', '${lok}')" class="text-blue-500 p-1"><i class="fa-solid fa-pen"></i></button><button onclick="padamTetapan('lokasi', '${lok}')" class="text-red-500 p-1"><i class="fa-solid fa-trash-can"></i></button></div></div>`; });
         }
 
-        async function jalankanUrusTetapan(subAction, jenis, nilaiLama, nilaiBaru) { try { await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'urus_tetapan', subAction: subAction, jenis: jenis, nilaiLama: nilaiLama, nilaiBaru: nilaiBaru }) }); await muatData(); renderSenaraiTetapan(); } catch (err) { alert('Ralat pelayan.'); } }
-        function tambahTetapan(jenis) { const field = (jenis === 'lokasi') ? document.getElementById('inputBaruLokasi') : document.getElementById('inputBaruNamaAset'); if(field.value.trim()) { jalankanUrusTetapan('tambah', jenis, '', field.value.trim()); field.value = ''; } }
+        async function jalankanUrusTetapan(subAction, jenis, nilaiLama, nilaiBaru) { 
+            try { 
+                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'urus_tetapan', subAction: subAction, jenis: jenis, nilaiLama: nilaiLama, nilaiBaru: nilaiBaru }) }); 
+                // Delay 1.5s membenarkan Sheet & Borang update sebelum UI dirender semula
+                setTimeout(async () => {
+                    await muatData(); 
+                    renderSenaraiTetapan(); 
+                }, 1500);
+            } catch (err) { alert('Ralat pelayan.'); } 
+        }
+        
+        function tambahTetapan(jenis) { 
+            const field = (jenis === 'lokasi') ? document.getElementById('inputBaruLokasi') : document.getElementById('inputBaruNamaAset'); 
+            const btn = field.nextElementSibling;
+            if(field.value.trim()) { 
+                let asal = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; // Kesan animasi berputar
+                jalankanUrusTetapan('tambah', jenis, '', field.value.trim()); 
+                field.value = ''; 
+                setTimeout(() => { btn.innerHTML = asal; }, 1500);
+            } 
+        }
+
         function editTetapan(jenis, nilaiLama) { let v = prompt(`Edit nama untuk "${nilaiLama}":`, nilaiLama); if(v && v.trim() !== "" && v !== nilaiLama) jalankanUrusTetapan('edit', jenis, nilaiLama, v.trim()); }
         async function padamTetapan(jenis, nilaiLama) { if(confirm(`Padam "${nilaiLama}"?`)) { try { await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'urus_tetapan', subAction: 'padam', jenis: jenis, nilaiLama: nilaiLama }) }); setTimeout(async () => { await muatData(); renderSenaraiTetapan(); let arr = (jenis === 'lokasi') ? dataTetapanGlobal.lokasi : dataTetapanGlobal.namaAset; if(arr.includes(nilaiLama)) alert(`❌ GAGAL:\n"${nilaiLama}" sedang digunakan!`); }, 1500); } catch (e) { alert('Ralat.'); } } }
 
