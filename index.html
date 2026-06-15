@@ -57,7 +57,9 @@
                     <button id="btnAuthAdmin" onclick="kendaliButangAuth()" class="bg-blue-900 hover:bg-blue-950 text-white px-3 py-2 rounded-lg text-sm font-bold transition-all shadow-inner border border-blue-700/50 flex items-center gap-2">
                         <i class="fa-solid fa-lock text-amber-400" id="iconAuth"></i><span id="txtAuth">Log Masuk Admin</span>
                     </button>
+
                     <span class="text-blue-700 px-1">|</span>
+
                     <button onclick="pastikanAdmin(() => bukaPanelTetapan())" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm" title="Tetapan Sistem">
                         <i class="fa-solid fa-cogs"></i><span class="hidden md:inline ml-2">Tetapan</span>
                     </button>
@@ -183,21 +185,21 @@
                 <div class="flex-1 flex flex-col">
                     <h3 class="font-bold text-slate-700 mb-3 border-b pb-2"><i class="fa-solid fa-box-open mr-2 text-slate-400"></i>Urus Nama Aset</h3>
                     <div class="flex gap-2 mb-3">
-                        <input type="text" id="inputBaruNamaAset" placeholder="Cth: Papan Pintar" class="flex-1 px-3 py-2 border rounded text-sm">
-                        <button onclick="tambahTetapan('namaAset')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm min-w-[40px] flex justify-center"><i class="fa-solid fa-plus"></i></button>
+                        <input type="text" id="inputBaruNamaAset" placeholder="Cth: Papan Pintar" class="flex-1 px-3 py-2 border rounded text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                        <button onclick="tambahTetapan('namaAset')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-bold shadow-sm transition-colors"><i class="fa-solid fa-plus"></i></button>
                     </div>
                     <div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listNamaAset"></div>
                 </div>
                 <div class="flex-1 flex flex-col">
                     <h3 class="font-bold text-slate-700 mb-3 pb-2 border-b"><i class="fa-solid fa-map-location-dot mr-2 text-slate-400"></i>Urus Lokasi Premis</h3>
                     <div class="flex gap-2 mb-3">
-                        <input type="text" id="inputBaruLokasi" placeholder="Cth: Dewan Utama" class="flex-1 px-3 py-2 border rounded text-sm">
-                        <button onclick="tambahTetapan('lokasi')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm min-w-[40px] flex justify-center"><i class="fa-solid fa-plus"></i></button>
+                        <input type="text" id="inputBaruLokasi" placeholder="Cth: Dewan Utama" class="flex-1 px-3 py-2 border rounded text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                        <button onclick="tambahTetapan('lokasi')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-bold shadow-sm transition-colors"><i class="fa-solid fa-plus"></i></button>
                     </div>
                     <div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listLokasi"></div>
                 </div>
             </div>
-            <div class="p-4 border-t bg-slate-50 rounded-b-xl flex justify-end">
+            <div class="p-4 border-t border-slate-200 bg-slate-50 rounded-b-xl flex justify-end">
                 <button onclick="tutupPanelTetapan()" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-4 py-2 rounded-lg font-bold text-sm">Tutup Panel</button>
             </div>
         </div>
@@ -310,8 +312,15 @@
         }
 
         // ====================================================================
-        // FUNGSI TETAPAN DIPERBAIKI (VISUAL DELAY FIXED)
+        // FUNGSI TETAPAN (OPTIMISTIC UI - TIADA LOADING LAMA LAGI!)
         // ====================================================================
+        function kemaskiniDropdownUI() {
+            const drops = [document.getElementById('lokasiAset'), document.getElementById('pukalLokasi')]; 
+            const dropsN = [document.getElementById('namaAset'), document.getElementById('pukalNamaAset')];
+            drops.forEach(d => { d.innerHTML='<option value="">Pilih...</option>'; dataTetapanGlobal.lokasi.forEach(l => d.add(new Option(l,l)));}); 
+            dropsN.forEach(d => { d.innerHTML='<option value="">Pilih...</option>'; dataTetapanGlobal.namaAset.forEach(n => d.add(new Option(n,n)));});
+        }
+
         function bukaPanelTetapan() { renderSenaraiTetapan(); document.getElementById('tetapanModal').classList.remove('hidden'); }
         function tutupPanelTetapan() { document.getElementById('tetapanModal').classList.add('hidden'); }
         
@@ -322,31 +331,60 @@
             dataTetapanGlobal.lokasi.forEach(lok => { listLokasi.innerHTML += `<div class="flex justify-between items-center bg-white p-2 mb-1 rounded border shadow-sm"><span class="text-sm font-medium text-slate-700">${lok}</span><div class="flex gap-1"><button onclick="editTetapan('lokasi', '${lok}')" class="text-blue-500 p-1"><i class="fa-solid fa-pen"></i></button><button onclick="padamTetapan('lokasi', '${lok}')" class="text-red-500 p-1"><i class="fa-solid fa-trash-can"></i></button></div></div>`; });
         }
 
-        async function jalankanUrusTetapan(subAction, jenis, nilaiLama, nilaiBaru) { 
-            try { 
-                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'urus_tetapan', subAction: subAction, jenis: jenis, nilaiLama: nilaiLama, nilaiBaru: nilaiBaru }) }); 
-                // Delay 1.5s membenarkan Sheet & Borang update sebelum UI dirender semula
-                setTimeout(async () => {
-                    await muatData(); 
-                    renderSenaraiTetapan(); 
-                }, 1500);
-            } catch (err) { alert('Ralat pelayan.'); } 
+        // Hantar ke Google Sheets secara senyap-senyap di latar belakang
+        function jalankanUrusTetapanSenyap(subAction, jenis, nilaiLama, nilaiBaru) { 
+            fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'urus_tetapan', subAction: subAction, jenis: jenis, nilaiLama: nilaiLama, nilaiBaru: nilaiBaru }) }).catch(e=>console.log('Sync Error')); 
         }
         
         function tambahTetapan(jenis) { 
             const field = (jenis === 'lokasi') ? document.getElementById('inputBaruLokasi') : document.getElementById('inputBaruNamaAset'); 
-            const btn = field.nextElementSibling;
-            if(field.value.trim()) { 
-                let asal = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; // Kesan animasi berputar
-                jalankanUrusTetapan('tambah', jenis, '', field.value.trim()); 
+            const valBaru = field.value.trim();
+            if(valBaru) { 
+                // 1. UPDATE UI SERTA MERTA
+                if(jenis === 'lokasi') dataTetapanGlobal.lokasi.push(valBaru);
+                else dataTetapanGlobal.namaAset.push(valBaru);
+                
+                renderSenaraiTetapan(); 
+                kemaskiniDropdownUI();
                 field.value = ''; 
-                setTimeout(() => { btn.innerHTML = asal; }, 1500);
+                
+                // 2. HANTAR KE GOOGLE SERVER DI LATAR BELAKANG
+                jalankanUrusTetapanSenyap('tambah', jenis, '', valBaru); 
             } 
         }
 
-        function editTetapan(jenis, nilaiLama) { let v = prompt(`Edit nama untuk "${nilaiLama}":`, nilaiLama); if(v && v.trim() !== "" && v !== nilaiLama) jalankanUrusTetapan('edit', jenis, nilaiLama, v.trim()); }
-        async function padamTetapan(jenis, nilaiLama) { if(confirm(`Padam "${nilaiLama}"?`)) { try { await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'urus_tetapan', subAction: 'padam', jenis: jenis, nilaiLama: nilaiLama }) }); setTimeout(async () => { await muatData(); renderSenaraiTetapan(); let arr = (jenis === 'lokasi') ? dataTetapanGlobal.lokasi : dataTetapanGlobal.namaAset; if(arr.includes(nilaiLama)) alert(`❌ GAGAL:\n"${nilaiLama}" sedang digunakan!`); }, 1500); } catch (e) { alert('Ralat.'); } } }
+        function editTetapan(jenis, nilaiLama) { 
+            let v = prompt(`Edit nama untuk "${nilaiLama}":`, nilaiLama); 
+            if(v && v.trim() !== "" && v !== nilaiLama) {
+                let valBaru = v.trim();
+                
+                // UPDATE UI SERTA MERTA
+                let arr = (jenis === 'lokasi') ? dataTetapanGlobal.lokasi : dataTetapanGlobal.namaAset;
+                let idx = arr.indexOf(nilaiLama);
+                if (idx !== -1) arr[idx] = valBaru;
+                
+                renderSenaraiTetapan();
+                kemaskiniDropdownUI();
+                
+                // Hantar ke server
+                jalankanUrusTetapanSenyap('edit', jenis, nilaiLama, valBaru); 
+                
+                // Refresh pangkalan data selepas 3 saat untuk update baris aset yang lama
+                setTimeout(muatData, 3000); 
+            } 
+        }
+
+        function padamTetapan(jenis, nilaiLama) { 
+            if(confirm(`Padam "${nilaiLama}"?`)) { 
+                jalankanUrusTetapanSenyap('padam', jenis, nilaiLama, ''); 
+                setTimeout(async () => { 
+                    await muatData(); 
+                    renderSenaraiTetapan(); 
+                    let arr = (jenis === 'lokasi') ? dataTetapanGlobal.lokasi : dataTetapanGlobal.namaAset; 
+                    if(arr.includes(nilaiLama)) alert(`❌ GAGAL PADAM:\n"${nilaiLama}" sedang digunakan oleh rekod inventori sedia ada!\nSila gunakan butang Edit (Pen) untuk menukar namanya.`); 
+                }, 2000); 
+            } 
+        }
 
         function openModal(a){document.getElementById('asetForm').reset();document.getElementById('actionType').value=a;document.getElementById('kategoriAset').value="Belum Disahkan";document.getElementById('asetModal').classList.remove('hidden');}
         function closeModal(){document.getElementById('asetModal').classList.add('hidden');}
@@ -372,9 +410,7 @@
             try {
                 const res = await fetch(scriptURL + "?t=" + new Date().getTime()); const data = await res.json();
                 dataAsetGlobal = data.aset; dataTetapanGlobal = data.tetapan; 
-                
-                const drops = [document.getElementById('lokasiAset'), document.getElementById('pukalLokasi')]; const dropsN = [document.getElementById('namaAset'), document.getElementById('pukalNamaAset')];
-                drops.forEach(d => { d.innerHTML='<option value="">Pilih...</option>'; dataTetapanGlobal.lokasi.forEach(l => d.add(new Option(l,l)));}); dropsN.forEach(d => { d.innerHTML='<option value="">Pilih...</option>'; dataTetapanGlobal.namaAset.forEach(n => d.add(new Option(n,n)));});
+                kemaskiniDropdownUI();
 
                 tb.innerHTML = '';
                 if(dataAsetGlobal.length === 0) return tb.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-slate-500 font-medium">Tiada rekod pendaftaran inventori setakat ini.</td></tr>';
