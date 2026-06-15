@@ -27,6 +27,13 @@
             body.kewpa-print-mode .main-header { display: none !important; }
             body.kewpa-print-mode #kewpaPrintArea { display: block !important; }
             body:not(.kewpa-print-mode) #kewpaPrintArea { display: none !important; }
+
+            /* Mod 3: Cetak Pelekat Label QR */
+            body.qr-print-mode .glass-card { display: none !important; }
+            body.qr-print-mode nav { display: none !important; }
+            body.qr-print-mode .main-header { display: none !important; }
+            body.qr-print-mode #qrPrintArea { display: flex !important; }
+            body:not(.qr-print-mode) #qrPrintArea { display: none !important; }
         }
     </style>
 </head>
@@ -61,6 +68,9 @@
                     </button>
                     <button onclick="pastikanAdmin(() => openModal('tambah'))" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
                         <i class="fa-solid fa-plus"></i><span class="hidden md:inline ml-1">Aset Baru</span>
+                    </button>
+                    <button onclick="resetSemua()" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
+                        <i class="fa-solid fa-triangle-exclamation"></i><span class="hidden md:inline ml-1">Reset</span>
                     </button>
                 </div>
             </div>
@@ -148,38 +158,19 @@
             <div class="font-bold bg-slate-200 p-1 border border-black text-center mb-0">PEMERIKSAAN</div>
             <table class="min-w-full border-collapse border border-black text-center"><thead><tr><th class="border border-black p-2">Tarikh</th><th class="border border-black p-2">Status Aset</th><th class="border border-black p-2">Nama Pemeriksa</th><th class="border border-black p-2">Tandatangan</th></tr></thead><tbody><tr><td class="border border-black p-3"></td><td class="border border-black p-3 font-semibold uppercase" id="kewpaStatus"></td><td class="border border-black p-3"></td><td class="border border-black p-3"></td></tr></tbody></table>
         </div>
+
+        <div id="qrPrintArea" class="hidden print:hidden flex-col items-center justify-center text-center p-3 border-2 border-slate-800 w-64 mx-auto bg-white text-black rounded-md">
+            <div class="font-black text-xs tracking-wider border-b-2 border-slate-800 pb-1 mb-2 w-full uppercase">LABEL HARTA INSAN/SEKOLAH</div>
+            <div id="qrCodeImgArea" class="mb-1 bg-white p-1"></div>
+            <div id="qrNoDaftar" class="font-mono font-black text-sm tracking-tight text-slate-950"></div>
+            <div id="qrNamaAset" class="text-[11px] font-bold uppercase mt-0.5 truncate max-w-full"></div>
+            <div id="qrLokasi" class="text-[9px] text-slate-700 font-medium italic mt-0.5"></div>
+        </div>
     </main>
 
-    <div id="tetapanModal" class="fixed inset-0 bg-slate-900 bg-opacity-60 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden p-4"><div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh]"><div class="flex justify-between items-center p-5 border-b border-slate-200 bg-slate-50 rounded-t-xl"><h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-sliders text-blue-600 mr-2"></i>Panel Tetapan Pangkalan Data</h2><button onclick="tutupPanelTetapan()" class="text-slate-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button></div><div class="flex flex-col md:flex-row flex-1 overflow-hidden p-5 gap-6"><div class="flex-1 flex flex-col"><h3 class="font-bold text-slate-700 mb-3 border-b pb-2"><i class="fa-solid fa-box-open mr-2 text-slate-400"></i>Urus Nama Aset</h3><div class="flex gap-2 mb-3"><input type="text" id="inputBaruNamaAset" placeholder="Cth: Papan Pintar" class="flex-1 px-3 py-2 border rounded text-sm"><button onclick="tambahTetapan('namaAset')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"><i class="fa-solid fa-plus"></i></button></div><div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listNamaAset"></div></div><div class="flex-1 flex flex-col"><h3 class="font-bold text-slate-700 mb-3 border-b pb-2"><i class="fa-solid fa-map-location-dot mr-2 text-slate-400"></i>Urus Lokasi Premis</h3><div class="flex gap-2 mb-3"><input type="text" id="inputBaruLokasi" placeholder="Cth: Dewan Utama" class="flex-1 px-3 py-2 border rounded text-sm"><button onclick="tambahTetapan('lokasi')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"><i class="fa-solid fa-plus"></i></button></div><div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listLokasi"></div></div></div><div class="p-4 border-t bg-slate-50 rounded-b-xl flex justify-end"><button onclick="tutupPanelTetapan()" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-4 py-2 rounded-lg font-bold text-sm">Tutup Panel</button></div></div></div>
-    
+    <div id="tetapanModal" class="fixed inset-0 bg-slate-900 bg-opacity-60 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden p-4"><div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh]"><div class="flex justify-between items-center p-5 border-b border-slate-200 bg-slate-50 rounded-t-xl"><h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-sliders text-blue-600 mr-2"></i>Panel Tetapan Pangkalan Data</h2><button onclick="tutupPanelTetapan()" class="text-slate-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button></div><div class="flex flex-col md:flex-row flex-1 overflow-hidden p-5 gap-6"><div class="flex-1 flex flex-col"><h3 class="font-bold text-slate-700 mb-3 border-b pb-2"><i class="fa-solid fa-box-open mr-2 text-slate-400"></i>Urus Nama Aset</h3><div class="flex gap-2 mb-3"><input type="text" id="inputBaruNamaAset" placeholder="Cth: Papan Pintar" class="flex-1 px-3 py-2 border rounded text-sm"><button onclick="tambahTetapan('namaAset')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"><i class="fa-solid fa-plus"></i></button></div><div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listNamaAset"></div></div><div class="flex-1 flex flex-col"><h3 class="font-bold text-slate-700 mb-3 pb-2 border-b"><i class="fa-solid fa-map-location-dot mr-2 text-slate-400"></i>Urus Lokasi Premis</h3><div class="flex gap-2 mb-3"><input type="text" id="inputBaruLokasi" placeholder="Cth: Dewan Utama" class="flex-1 px-3 py-2 border rounded text-sm"><button onclick="tambahTetapan('lokasi')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"><i class="fa-solid fa-plus"></i></button></div><div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listLokasi"></div></div></div><div class="p-4 border-t bg-slate-50 rounded-b-xl flex justify-end"><button onclick="tutupPanelTetapan()" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-4 py-2 rounded-lg font-bold text-sm">Tutup Panel</button></div></div></div>
     <div id="asetModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden"><div class="bg-white rounded-xl shadow-xl w-11/12 md:w-1/2 max-w-lg p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold" id="modalTitle">Borang</h2><button onclick="closeModal()" class="text-slate-400 text-2xl">&times;</button></div><form id="asetForm" onsubmit="simpanData(event)"><input type="hidden" id="actionType"><input type="hidden" id="rowIndexField"><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm">No Daftar</label><input type="text" id="noDaftar" class="w-full px-3 py-2 border rounded bg-slate-50 font-bold text-blue-700"></div><div><label class="block text-sm">No Siri</label><input type="text" id="noSiri" class="w-full px-3 py-2 border rounded"></div></div><div class="mb-4"><label class="block text-sm">Nama Aset</label><select id="namaAset" class="w-full px-3 py-2 border rounded"></select></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm">Harga (RM)</label><input type="number" step="0.01" id="hargaAset" onkeyup="autoSetKategori(this.value)" class="w-full px-3 py-2 border rounded border-blue-400 font-bold"></div><div><label class="block text-sm">Kategori</label><select id="kategoriAset" class="w-full px-3 py-2 border rounded bg-slate-100 pointer-events-none"><option value="Belum Disahkan">Belum Disahkan</option><option value="Aset Bernilai Rendah">Aset Bernilai Rendah</option><option value="Harta Modal">Harta Modal</option></select></div></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm">Lokasi</label><select id="lokasiAset" class="w-full px-3 py-2 border rounded"></select></div><div><label class="block text-sm">Status</label><select id="statusAset" class="w-full px-3 py-2 border rounded"><option>Baik</option><option>Sedang Diselenggara</option><option>Rosak / Lupus</option></select></div></div><div class="flex justify-end gap-2"><button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-200 rounded">Batal</button><button type="submit" id="btnSimpan" class="px-4 py-2 bg-emerald-600 text-white rounded">Simpan / Sahkan</button></div></form></div></div>
-    
-    <div id="pukalModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden">
-        <div class="bg-white rounded-xl shadow-xl w-11/12 md:w-1/2 max-w-lg p-6 border-t-8 border-amber-500">
-            <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Sahkan Pukal</h2><button onclick="closeModalPukal()" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button></div>
-            <form id="pukalForm" onsubmit="simpanPukal(event)">
-                <div class="mb-4"><label class="block text-sm">Nama Aset</label><select id="pukalNamaAset" class="w-full px-3 py-2 border rounded"></select></div>
-                <div class="mb-4"><label class="block text-sm">Lokasi</label><select id="pukalLokasi" class="w-full px-3 py-2 border rounded"></select></div>
-                
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm text-blue-700 font-bold">Harga (RM)</label>
-                        <input type="number" step="0.01" id="pukalHarga" required class="w-full px-3 py-2 border border-blue-400 rounded font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-sm text-emerald-700 font-bold">No. Pendaftaran Asas</label>
-                        <input type="text" id="pukalNoDaftar" placeholder="Cth: SKT/24/001" required class="w-full px-3 py-2 border border-emerald-400 rounded font-bold uppercase">
-                    </div>
-                </div>
-                <p class="text-xs text-slate-500 mb-4">*Sistem akan membina siri secara automatik berdasarkan "No. Pendaftaran Asas" di atas untuk keseluruhan kuantiti rekod.</p>
-
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="closeModalPukal()" class="px-4 py-2 bg-slate-200 rounded font-medium">Batal</button>
-                    <button type="submit" id="btnSimpanPukal" class="px-4 py-2 bg-amber-500 rounded font-bold shadow-sm">Sahkan & Luluskan</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <div id="pukalModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden"><div class="bg-white rounded-xl shadow-xl w-11/12 md:w-1/2 max-w-lg p-6 border-t-8 border-amber-500"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Sahkan Pukal</h2><button onclick="closeModalPukal()" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button></div><form id="pukalForm" onsubmit="simpanPukal(event)"><div class="mb-4"><label class="block text-sm">Nama Aset</label><select id="pukalNamaAset" class="w-full px-3 py-2 border rounded"></select></div><div class="mb-4"><label class="block text-sm">Lokasi</label><select id="pukalLokasi" class="w-full px-3 py-2 border rounded"></select></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm text-blue-700 font-bold">Harga (RM)</label><input type="number" step="0.01" id="pukalHarga" required class="w-full px-3 py-2 border border-blue-400 rounded font-bold"></div><div><label class="block text-sm text-emerald-700 font-bold">No. Pendaftaran Asas</label><input type="text" id="pukalNoDaftar" placeholder="Cth: SKT/24/001" required class="w-full px-3 py-2 border border-emerald-400 rounded font-bold uppercase"></div></div><p class="text-xs text-slate-500 mb-4">*Sistem akan membina siri secara automatik berdasarkan "No. Pendaftaran Asas" di atas untuk keseluruhan kuantiti rekod.</p><div class="flex justify-end gap-2"><button type="button" onclick="closeModalPukal()" class="px-4 py-2 bg-slate-200 rounded font-medium">Batal</button><button type="submit" id="btnSimpanPukal" class="px-4 py-2 bg-amber-500 rounded font-bold shadow-sm">Sahkan & Luluskan</button></div></form></div></div>
 
     <script>
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzJ_hJvfC-r2ZsV9iwVrQgGeq2cI6EPtTLjmNeCtcyR21S207jhvJE_LN9PY8fzQo4/exec'; 
@@ -191,6 +182,9 @@
 
         document.getElementById('tarikhCetak').innerText = new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
 
+        // ====================================================================
+        // FUNGSI UTAMAA KEBENARAN PINTAR
+        // ====================================================================
         function pastikanAdmin(fungsiAsal) {
             if (statusAdminLoggedIn) {
                 if (fungsiAsal) fungsiAsal();
@@ -212,44 +206,71 @@
                 statusAdminLoggedIn = false;
                 kemaskiniUIAdmin();
                 alert("🔒 Anda telah log keluar. Sistem kembali ke Mod Lihat Sahaja.");
-            } else {
-                pastikanAdmin(null);
-            }
+            } else { pastikanAdmin(null); }
         }
 
         function kemaskiniUIAdmin() {
             const btn = document.getElementById('btnAuthAdmin');
             const txt = document.getElementById('txtAuth');
             const icon = document.getElementById('iconAuth');
-            
             if (statusAdminLoggedIn) {
-                btn.classList.remove('bg-blue-900', 'hover:bg-blue-950');
-                btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
-                txt.innerText = "Mod Admin (Log Keluar)";
-                icon.className = "fa-solid fa-unlock-keyhole text-amber-300";
+                btn.classList.remove('bg-blue-900', 'hover:bg-blue-950'); btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+                txt.innerText = "Mod Admin (Log Keluar)"; icon.className = "fa-solid fa-unlock-keyhole text-amber-300";
             } else {
-                btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
-                btn.classList.add('bg-blue-900', 'hover:bg-blue-950');
-                txt.innerText = "Log Masuk Admin";
-                icon.className = "fa-solid fa-lock text-amber-400";
+                btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700'); btn.classList.add('bg-blue-900', 'hover:bg-blue-950');
+                txt.innerText = "Log Masuk Admin"; icon.className = "fa-solid fa-lock text-amber-400";
             }
         }
 
+        // ====================================================================
+        // PINTARAN FUNGSI BARU: JANA DAN CETAK PELEKAT KOD QR PINTAR
+        // ====================================================================
+        function cetakLabelQR(noDaftar, namaAset, lokasi) {
+            if (noDaftar === 'MENUNGGU DAFTAR' || !noDaftar || noDaftar === '-') {
+                alert("Ralat: Aset ini belum disahkan oleh Admin dan tidak mempunyai Nombor Pendaftaran rasmi.");
+                return;
+            }
+            // Bersihkan URL semasa untuk mengelakkan penimbunan query sedia ada
+            let urlBersih = window.location.href.split('?')[0];
+            // Bina pautan look-up unik untuk ditanam dalam Kod QR
+            let pautanLookUp = `${urlBersih}?search=${encodeURIComponent(noDaftar)}`;
+            
+            // Jana imej QR Code menggunakan API Server yang laju dan stabil
+            let urlApiQR = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(pautanLookUp)}`;
+            
+            // Suntik data ke dalam susunan sticker label fizikal
+            document.getElementById('qrCodeImgArea').innerHTML = `<img src="${urlApiQR}" alt="QR Code" class="w-28 h-24 mx-auto">`;
+            document.getElementById('qrNoDaftar').innerText = noDaftar;
+            document.getElementById('qrNamaAset').innerText = namaAset;
+            document.getElementById('qrLokasi').innerText = `Lokasi: ${lokasi}`;
+
+            const tajukAsal = document.title;
+            document.title = `LABEL_QR_${noDaftar.replace(/\//g, '-')}`;
+            
+            // Lancarkan mod cetakan label
+            document.body.classList.add('qr-print-mode');
+            window.print();
+            
+            // Pulihkan semula antaramuka skrip web
+            setTimeout(() => {
+                document.body.classList.remove('qr-print-mode');
+                document.title = tajukAsal;
+            }, 500);
+        }
+
+        // ====================================================================
+        // FUNGSI JANA KEW.PA & CETAK PENUH / RINGKASAN
+        // ====================================================================
         function janaKewPA(noDaftar, namaAset, kategori, lokasi, status, harga) {
             let isHartaModal = (kategori === 'Harta Modal');
             document.getElementById('kewpaNoBorang').innerText = isHartaModal ? 'KEW.PA-2' : 'KEW.PA-3';
             document.getElementById('kewpaTajukBorang').innerText = isHartaModal ? 'DAFTAR HARTA MODAL' : 'DAFTAR ASET BERNILAI RENDAH';
-            document.getElementById('kewpaNoDaftar').innerText = noDaftar;
-            document.getElementById('kewpaKategori').innerText = kategori;
-            document.getElementById('kewpaJenis').innerText = namaAset;
-            document.getElementById('kewpaHarga').innerText = harga;
-            document.getElementById('kewpaLokasi').innerText = lokasi;
-            document.getElementById('kewpaStatus').innerText = status;
+            document.getElementById('kewpaNoDaftar').innerText = noDaftar; document.getElementById('kewpaKategori').innerText = kategori;
+            document.getElementById('kewpaJenis').innerText = namaAset; document.getElementById('kewpaHarga').innerText = harga;
+            document.getElementById('kewpaLokasi').innerText = lokasi; document.getElementById('kewpaStatus').innerText = status;
 
-            const tajukAsal = document.title;
-            document.title = `${isHartaModal ? 'KEWPA2' : 'KEWPA3'}_${noDaftar.replace(/\//g, '-')}`;
-            document.body.classList.add('kewpa-print-mode');
-            window.print();
+            const tajukAsal = document.title; document.title = `${isHartaModal ? 'KEWPA2' : 'KEWPA3'}_${noDaftar.replace(/\//g, '-')}`;
+            document.body.classList.add('kewpa-print-mode'); window.print();
             setTimeout(() => { document.body.classList.remove('kewpa-print-mode'); document.title = tajukAsal; }, 500);
         }
 
@@ -264,29 +285,22 @@
             subTajukEl.innerText = mesejSub ? mesejSub.toUpperCase() : "SEMUA LOKASI & REKOD INDUK";
             document.getElementById('tajukCetak').innerText = "Senarai Inventori Aset Alih";
             
-            const tajukAsal = document.title;
-            document.title = `Senarai_Aset_${inputTeks || 'Penuh'}`;
+            const tajukAsal = document.title; document.title = `Senarai_Aset_${inputTeks || 'Penuh'}`;
             window.print();
             setTimeout(() => { document.title = tajukAsal; }, 500);
         }
 
-        // ====================================================================
-        // FUNGSI CETAK RINGKASAN (TELAH DIKEMASKINI DENGAN LAJUR LOKASI)
-        // ====================================================================
         function cetakRingkasan() {
             const rows = document.querySelectorAll('.search-row');
             let counts = {}; let adaData = false;
             
-            // Baca data daripada jadual yang dipaparkan
             rows.forEach(row => {
                 if (row.style.display !== 'none') {
                     let nama = row.getAttribute('data-nama');
-                    let lokasi = row.getAttribute('data-lokasi'); // Baca Lokasi
+                    let lokasi = row.getAttribute('data-lokasi'); 
                     if(nama && lokasi) { 
-                        // Gabungkan nama dan lokasi sebagai kunci pengiraan
                         let key = nama + " | " + lokasi;
-                        counts[key] = (counts[key] || 0) + 1; 
-                        adaData = true; 
+                        counts[key] = (counts[key] || 0) + 1; adaData = true; 
                     }
                 }
             });
@@ -296,43 +310,29 @@
             let tbodyHtml = ''; let totalKeseluruhan = 0;
             let sortedKeys = Object.keys(counts).sort();
             
-            // Bina jadual ringkasan baharu
             sortedKeys.forEach(key => {
                 let [nama, lokasi] = key.split(" | ");
                 let qty = counts[key];
-                tbodyHtml += `
-                    <tr>
-                        <td class="py-2 px-4 border border-slate-800 text-left font-medium uppercase">${nama}</td>
-                        <td class="py-2 px-4 border border-slate-800 text-left font-medium">${lokasi}</td>
-                        <td class="py-2 px-4 border border-slate-800 text-center font-bold">${qty}</td>
-                    </tr>
-                `;
+                tbodyHtml += `<tr><td class="py-2 px-4 border border-slate-800 text-left font-medium uppercase">${nama}</td><td class="py-2 px-4 border border-slate-800 text-left font-medium">${lokasi}</td><td class="py-2 px-4 border border-slate-800 text-center font-bold">${qty}</td></tr>`;
                 totalKeseluruhan += qty;
             });
             tbodyHtml += `<tr class="bg-slate-100"><td colspan="2" class="py-2 px-4 border border-slate-800 text-right uppercase font-extrabold">Jumlah Keseluruhan Unit:</td><td class="py-2 px-4 border border-slate-800 text-center text-lg font-black">${totalKeseluruhan}</td></tr>`;
             
             document.getElementById('summaryTableBody').innerHTML = tbodyHtml;
-            
             let inputTeks = document.getElementById("searchInput").value.trim();
             document.getElementById('subTajukCetak').innerText = inputTeks ? `RINGKASAN UNTUK: ${inputTeks.toUpperCase()}` : "RINGKASAN REKOD INDUK SEKOLAH";
             document.getElementById('tajukCetak').innerText = "Ringkasan Kuantiti Aset Alih";
             
-            const tajukAsal = document.title;
-            document.title = `Ringkasan_Kuantiti_${inputTeks || 'Penuh'}`;
-            document.body.classList.add('summary-print-mode');
-            window.print();
-            
-            setTimeout(() => {
-                document.body.classList.remove('summary-print-mode');
-                document.getElementById('tajukCetak').innerText = "Senarai Inventori Aset Alih";
-                document.getElementById('subTajukCetak').innerText = "";
-                document.title = tajukAsal;
-            }, 500);
+            const tajukAsal = document.title; document.title = `Ringkasan_Kuantiti_${inputTeks || 'Penuh'}`;
+            document.body.classList.add('summary-print-mode'); window.print();
+            setTimeout(() => { document.body.classList.remove('summary-print-mode'); document.getElementById('tajukCetak').innerText = "Senarai Inventori Aset Alih"; document.getElementById('subTajukCetak').innerText = ""; document.title = tajukAsal; }, 500);
         }
 
-        function bukaPanelTetapan() { renderSenaraiTetapan(); document.getElementById('tetapanModal').classList.remove('hidden'); }
+        // ====================================================================
+        // FUNGSI KENDALIAN BACKEND TETAPAN DROP DOWN
+        // ====================================================================
+        function bPanelTetapan() { renderSenaraiTetapan(); document.getElementById('tetapanModal').classList.remove('hidden'); }
         function tutupPanelTetapan() { document.getElementById('tetapanModal').classList.add('hidden'); }
-        
         function renderSenaraiTetapan() {
             const listNama = document.getElementById('listNamaAset'), listLokasi = document.getElementById('listLokasi');
             listNama.innerHTML = ''; listLokasi.innerHTML = '';
@@ -354,9 +354,7 @@
         function autoIncrementBackendFrontend(str, step) {
             if (!str || str === 'MENUNGGU DAFTAR') return str;
             if (step === 0) return str; 
-            return str.replace(/(\d+)$/, function(match) {
-                return String(parseInt(match, 10) + step).padStart(match.length, '0');
-            });
+            return str.replace(/(\d+)$/, function(match) { return String(parseInt(match, 10) + step).padStart(match.length, '0'); });
         }
 
         function panggilBorang(ac,r,nd,ns,na,k,l,s,h){
@@ -371,15 +369,16 @@
             });
         }
 
+        // ====================================================================
+        // PROSES STRUKTUR DATA UTAMA JADUAL + INTERCEPAT CARIAN AUTOMATIK QR
+        // ====================================================================
         async function muatData() {
             const tb = document.getElementById('tableBody');
             tb.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Menyegerak...</td></tr>';
             try {
                 const res = await fetch(scriptURL + "?t=" + new Date().getTime());
                 const data = await res.json();
-                
-                dataAsetGlobal = data.aset; 
-                dataTetapanGlobal = data.tetapan; 
+                dataAsetGlobal = data.aset; dataTetapanGlobal = data.tetapan; 
                 
                 const drops = [document.getElementById('lokasiAset'), document.getElementById('pukalLokasi')];
                 const dropsN = [document.getElementById('namaAset'), document.getElementById('pukalNamaAset')];
@@ -396,7 +395,6 @@
                     let colND = sah==='Disahkan'?'text-blue-700 border-emerald-500':'text-amber-600 border-amber-500';
                     if (nd === 'MENUNGGU DAFTAR') colND = 'text-slate-400 border-slate-300 italic';
                     
-                    // LOKASI (l) DISUNTIK KE DALAM ATTRIBUTE data-lokasi UNTUK CETAKAN RINGKASAN
                     tb.insertAdjacentHTML('beforeend', `
                         <tr class="search-row border-b hover:bg-slate-50 transition-colors" data-status="${s}" data-nama="${na.replace(/"/g, '&quot;')}" data-lokasi="${l.replace(/"/g, '&quot;')}">
                             <td class="px-6 py-3 text-sm font-mono font-bold border-l-4 ${colND}">${nd}</td>
@@ -404,7 +402,8 @@
                             <td class="px-6 py-3 text-sm text-slate-500"><div class="font-semibold text-slate-700">${l}</div><div class="text-xs text-slate-400">${k}</div></td>
                             <td class="px-6 py-3 text-sm"><span class="px-2 text-xs font-semibold rounded-full border ${bgSah}">${txtSah}</span></td>
                             <td class="px-6 py-3 text-right print:hidden">
-                                <div class="flex justify-end gap-1.5">
+                                <div class="flex justify-end gap-1">
+                                    <button onclick="cetakLabelQR('${nd.replace(/'/g,"\\'")}', '${na.replace(/'/g,"\\'")}', '${l.replace(/'/g,"\\'")}')" title="Cetak Pelekat QR" class="text-white hover:bg-sky-700 bg-sky-600 p-1.5 rounded shadow-sm text-xs"><i class="fa-solid fa-qrcode"></i></button>
                                     <button onclick="janaKewPA('${nd.replace(/'/g,"\\'")}', '${na.replace(/'/g,"\\'")}', '${k}', '${l.replace(/'/g,"\\'")}', '${s}', '${h}')" title="Cetak Borang KEW.PA" class="text-white hover:bg-purple-700 bg-purple-600 p-1.5 rounded shadow-sm text-xs"><i class="fa-solid fa-file-pdf"></i></button>
                                     <button onclick="panggilBorang('duplicate', ${rId}, '${nd.replace(/'/g,"\\'")}', '${ns.replace(/'/g,"\\'")}', '${na.replace(/'/g,"\\'")}', '${k}', '${l.replace(/'/g,"\\'")}', '${s}', '${h}')" title="Duplicate" class="text-slate-500 hover:text-blue-600 bg-slate-100 p-1.5 rounded text-xs"><i class="fa-regular fa-copy"></i></button>
                                     <button onclick="panggilBorang('edit', ${rId}, '${nd.replace(/'/g,"\\'")}', '${ns.replace(/'/g,"\\'")}', '${na.replace(/'/g,"\\'")}', '${k}', '${l.replace(/'/g,"\\'")}', '${s}', '${h}')" title="Edit/Sahkan" class="${sah==='Disahkan'?'text-slate-500':'text-amber-600 bg-amber-50 shadow-sm'} hover:text-green-600 bg-slate-100 p-1.5 rounded text-xs"><i class="fa-solid fa-signature"></i></button>
@@ -413,140 +412,23 @@
                             </td>
                         </tr>
                     `);
-                }); carianData();
-            } catch (e) { tb.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500 font-medium"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Ralat memuat turun pangkalan data. Sila refresh browser.</td></tr>'; }
-        }
+                }); 
 
-        function padamRekod(r, n){ pastikanAdmin(async () => { if(confirm(`Anda pasti mahu padam rekod "${n}"? Tindakan ini tidak boleh diundur.`)){ await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'delete',rowIndex:r})}); setTimeout(muatData,800); } }); }
-        function resetSemua(){ pastikanAdmin(async () => { if(prompt("Sahkan semula kata laluan keselamatan:")===KATA_LALUAN_RAHSIA && confirm("Adakah anda benar-benar pasti mahu memadam kesemua rekod pangkalan data ini?")){ document.getElementById('tableBody').innerHTML='<tr><td colspan="5" class="text-center py-4 text-red-500 font-bold"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Sistem sedang dipadamkan...</td></tr>'; await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'reset'})}); setTimeout(muatData,1000); } }); }
-        
-        async function simpanPukal(e){ 
-            e.preventDefault(); 
-            const btn = document.getElementById('btnSimpanPukal');
-            
-            let nama_aset = document.getElementById('pukalNamaAset').value;
-            let lokasi = document.getElementById('pukalLokasi').value;
-            let harga = document.getElementById('pukalHarga').value;
-            let no_daftar_asas = document.getElementById('pukalNoDaftar').value.trim();
-
-            let huruf = (parseFloat(harga) >= 3000) ? 'H' : 'R';
-            let parts = no_daftar_asas.split('/');
-            if (parts.length === 3) parts.splice(1, 0, huruf);
-            else if (parts.length >= 4) {
-                if (parts[1] === 'H' || parts[1] === 'R') parts[1] = huruf;
-                else parts.splice(1, 0, huruf);
-            }
-            let baseFormatDijangka = parts.join('/');
-
-            let matchCount = dataAsetGlobal.filter(item => 
-                String(item['Nama Aset']).trim() === nama_aset && 
-                String(item['Lokasi']).trim() === lokasi && 
-                String(item['Pengesahan']).trim() === 'Menunggu Pengesahan'
-            ).length;
-
-            if(matchCount === 0) {
-                alert("Tiada data aset 'Menunggu Pengesahan' yang sepadan dengan Nama dan Lokasi tersebut.");
-                return;
-            }
-
-            let konflikDitemui = false;
-            let siriKonflik = "";
-            for(let i=0; i<matchCount; i++) {
-                let siriDiJangka = autoIncrementBackendFrontend(baseFormatDijangka, i);
-                let wujud = dataAsetGlobal.some(item => String(item['No Pendaftaran']).trim() === siriDiJangka);
-                if(wujud) {
-                    konflikDitemui = true;
-                    siriKonflik = siriDiJangka;
-                    break;
+                // ENJIN INTERCEPTOR CARIAN SISTEM DARI IMBASAN KOD QR TELEFON
+                const urlParams = new URLSearchParams(window.location.search);
+                const searchParam = urlParams.get('search');
+                if (searchParam) {
+                    document.getElementById('searchInput').value = searchParam;
                 }
-            }
 
-            if (konflikDitemui) {
-                alert(`❌ PENGESAHAN DIBATALKAN (RALAT PERTINDIHAN)!\n\nNombor pendaftaran "${siriKonflik}" sudah wujud dalam pangkalan data.\n\nSila gunakan nombor siri permulaan yang lebih tinggi / belum digunakan.`);
-                return; 
-            }
-
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...';
-            btn.disabled=true; 
-
-            await fetch(scriptURL, {
-                method:'POST', 
-                mode:'no-cors', 
-                body:JSON.stringify({
-                    action:'sahkan_pukal', 
-                    data:{
-                        nama_aset: nama_aset, 
-                        lokasi: lokasi, 
-                        harga: harga,
-                        no_daftar_asas: no_daftar_asas
-                    }
-                })
-            }); 
-            
-            closeModalPukal(); 
-            btn.innerHTML = 'Sahkan & Luluskan';
-            btn.disabled=false;
-            setTimeout(muatData,1000); 
+                carianData();
+            } catch (e) { tb.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500 font-medium">Ralat sambungan.</td></tr>'; }
         }
 
-        async function simpanData(e){ 
-            e.preventDefault(); 
-            const btn = document.getElementById('btnSimpan');
-            
-            let no_daftar = document.getElementById('noDaftar').value.trim();
-            let harga = document.getElementById('hargaAset').value;
-            let actionStr = document.getElementById('actionType').value;
-            let rowField = document.getElementById('rowIndexField').value;
-
-            let huruf = (parseFloat(harga) >= 3000) ? 'H' : 'R';
-            let parts = no_daftar.split('/');
-            if (parts.length === 3) parts.splice(1, 0, huruf);
-            else if (parts.length >= 4) {
-                if (parts[1] === 'H' || parts[1] === 'R') parts[1] = huruf;
-                else parts.splice(1, 0, huruf);
-            }
-            let noDaftarSebenar = parts.join('/');
-
-            if (noDaftarSebenar !== 'MENUNGGU DAFTAR' && noDaftarSebenar !== '') {
-                let wujud = dataAsetGlobal.some(item => {
-                    let nomborSama = String(item['No Pendaftaran']).trim() === noDaftarSebenar;
-                    let barisBerbeza = actionStr === 'edit' ? String(item['rowIndex']) !== rowField : true;
-                    return nomborSama && barisBerbeza;
-                });
-
-                if (wujud) {
-                    alert(`❌ PENGESAHAN DIBATALKAN!\nNombor pendaftaran "${noDaftarSebenar}" telah digunakan oleh perabot lain.`);
-                    return;
-                }
-            }
-
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Menyimpan...';
-            btn.disabled=true; 
-
-            await fetch(scriptURL, {
-                method:'POST', 
-                mode:'no-cors', 
-                body:JSON.stringify({
-                    action: actionStr, 
-                    rowIndex: rowField, 
-                    data:{
-                        id:Date.now(), 
-                        no_daftar: no_daftar, 
-                        no_siri:document.getElementById('noSiri').value, 
-                        nama_aset:document.getElementById('namaAset').value, 
-                        kategori:document.getElementById('kategoriAset').value, 
-                        lokasi:document.getElementById('lokasiAset').value, 
-                        status:document.getElementById('statusAset').value, 
-                        harga: harga
-                    }
-                })
-            }); 
-            
-            closeModal(); 
-            btn.innerHTML = 'Simpan / Sahkan';
-            btn.disabled=false;
-            setTimeout(muatData,1000); 
-        }
+        function padamRekod(r, n){ pastikanAdmin(async () => { if(confirm(`Anda pasti mahu padam rekod "${n}"?`)){ await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'delete',rowIndex:r})}); setTimeout(muatData,800); } }); }
+        function resetSemua(){ pastikanAdmin(async () => { if(prompt("Sahkan kata laluan keselamatan:")===KATA_LALUAN_RAHSIA && confirm("Adakah anda pasti padam keseluruhan rekod?")){ document.getElementById('tableBody').innerHTML='<tr><td colspan="5" class="text-center py-4 text-red-500 font-bold">Memadam...</td></tr>'; await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'reset'})}); setTimeout(muatData,1000); } }); }
+        async function simpanData(e){ e.preventDefault(); document.getElementById('btnSimpan').disabled=true; await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:document.getElementById('actionType').value, rowIndex:document.getElementById('rowIndexField').value, data:{id:Date.now(), no_daftar:document.getElementById('noDaftar').value, no_siri:document.getElementById('noSiri').value, nama_aset:document.getElementById('namaAset').value, kategori:document.getElementById('kategoriAset').value, lokasi:document.getElementById('lokasiAset').value, status:document.getElementById('statusAset').value, harga:document.getElementById('hargaAset').value}})}); closeModal(); setTimeout(muatData,1000); }
+        async function simpanPukal(e){ e.preventDefault(); document.getElementById('btnSimpanPukal').disabled=true; await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'sahkan_pukal', data:{nama_aset:document.getElementById('pukalNamaAset').value, lokasi:document.getElementById('pukalLokasi').value, harga:document.getElementById('pukalHarga').value, no_daftar_asas:document.getElementById('pukalNoDaftar').value}})}); closeModalPukal(); setTimeout(muatData,1500); }
 
         function carianData(){
             let t=document.getElementById("searchInput").value.toLowerCase(), s=document.getElementById("filterStatus").value, r=document.getElementsByClassName("search-row");
