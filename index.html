@@ -62,9 +62,6 @@
                     <button onclick="pastikanAdmin(() => openModal('tambah'))" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
                         <i class="fa-solid fa-plus"></i><span class="hidden md:inline ml-1">Aset Baru</span>
                     </button>
-                    <button onclick="resetSemua()" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
-                        <i class="fa-solid fa-triangle-exclamation"></i><span class="hidden md:inline ml-1">Reset</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -115,9 +112,15 @@
             </div>
         </div>
 
-        <div id="summaryPrintArea" class="hidden print:hidden w-full max-w-2xl mx-auto mt-2">
+        <div id="summaryPrintArea" class="hidden print:hidden w-full max-w-3xl mx-auto mt-2">
             <table class="min-w-full border-collapse border border-slate-800">
-                <thead><tr class="bg-slate-200"><th class="py-2 px-4 border border-slate-800 text-left text-sm font-bold">NAMA ASET / PERABOT</th><th class="py-2 px-4 border border-slate-800 text-center text-sm font-bold w-32">KUANTITI</th></tr></thead>
+                <thead>
+                    <tr class="bg-slate-200">
+                        <th class="py-2 px-4 border border-slate-800 text-left text-sm font-bold uppercase">Nama Aset / Perabot</th>
+                        <th class="py-2 px-4 border border-slate-800 text-left text-sm font-bold uppercase">Lokasi</th>
+                        <th class="py-2 px-4 border border-slate-800 text-center text-sm font-bold uppercase w-32">Kuantiti</th>
+                    </tr>
+                </thead>
                 <tbody id="summaryTableBody" class="bg-white"></tbody>
             </table>
         </div>
@@ -267,29 +270,49 @@
             setTimeout(() => { document.title = tajukAsal; }, 500);
         }
 
+        // ====================================================================
+        // FUNGSI CETAK RINGKASAN (TELAH DIKEMASKINI DENGAN LAJUR LOKASI)
+        // ====================================================================
         function cetakRingkasan() {
             const rows = document.querySelectorAll('.search-row');
             let counts = {}; let adaData = false;
             
+            // Baca data daripada jadual yang dipaparkan
             rows.forEach(row => {
                 if (row.style.display !== 'none') {
                     let nama = row.getAttribute('data-nama');
-                    if(nama) { counts[nama] = (counts[nama] || 0) + 1; adaData = true; }
+                    let lokasi = row.getAttribute('data-lokasi'); // Baca Lokasi
+                    if(nama && lokasi) { 
+                        // Gabungkan nama dan lokasi sebagai kunci pengiraan
+                        let key = nama + " | " + lokasi;
+                        counts[key] = (counts[key] || 0) + 1; 
+                        adaData = true; 
+                    }
                 }
             });
 
             if (!adaData) { alert("Tiada data ditemui untuk tapisan semasa."); return; }
 
             let tbodyHtml = ''; let totalKeseluruhan = 0;
-            let sortedNames = Object.keys(counts).sort();
-            sortedNames.forEach(nama => {
-                let qty = counts[nama];
-                tbodyHtml += `<tr><td class="py-2 px-4 border border-slate-800 text-left font-medium uppercase">${nama}</td><td class="py-2 px-4 border border-slate-800 text-center font-bold">${qty}</td></tr>`;
+            let sortedKeys = Object.keys(counts).sort();
+            
+            // Bina jadual ringkasan baharu
+            sortedKeys.forEach(key => {
+                let [nama, lokasi] = key.split(" | ");
+                let qty = counts[key];
+                tbodyHtml += `
+                    <tr>
+                        <td class="py-2 px-4 border border-slate-800 text-left font-medium uppercase">${nama}</td>
+                        <td class="py-2 px-4 border border-slate-800 text-left font-medium">${lokasi}</td>
+                        <td class="py-2 px-4 border border-slate-800 text-center font-bold">${qty}</td>
+                    </tr>
+                `;
                 totalKeseluruhan += qty;
             });
-            tbodyHtml += `<tr class="bg-slate-100"><td class="py-2 px-4 border border-slate-800 text-right uppercase font-extrabold">Jumlah Keseluruhan Unit:</td><td class="py-2 px-4 border border-slate-800 text-center text-lg font-black">${totalKeseluruhan}</td></tr>`;
+            tbodyHtml += `<tr class="bg-slate-100"><td colspan="2" class="py-2 px-4 border border-slate-800 text-right uppercase font-extrabold">Jumlah Keseluruhan Unit:</td><td class="py-2 px-4 border border-slate-800 text-center text-lg font-black">${totalKeseluruhan}</td></tr>`;
             
             document.getElementById('summaryTableBody').innerHTML = tbodyHtml;
+            
             let inputTeks = document.getElementById("searchInput").value.trim();
             document.getElementById('subTajukCetak').innerText = inputTeks ? `RINGKASAN UNTUK: ${inputTeks.toUpperCase()}` : "RINGKASAN REKOD INDUK SEKOLAH";
             document.getElementById('tajukCetak').innerText = "Ringkasan Kuantiti Aset Alih";
@@ -373,8 +396,9 @@
                     let colND = sah==='Disahkan'?'text-blue-700 border-emerald-500':'text-amber-600 border-amber-500';
                     if (nd === 'MENUNGGU DAFTAR') colND = 'text-slate-400 border-slate-300 italic';
                     
+                    // LOKASI (l) DISUNTIK KE DALAM ATTRIBUTE data-lokasi UNTUK CETAKAN RINGKASAN
                     tb.insertAdjacentHTML('beforeend', `
-                        <tr class="search-row border-b hover:bg-slate-50 transition-colors" data-status="${s}" data-nama="${na.replace(/"/g, '&quot;')}">
+                        <tr class="search-row border-b hover:bg-slate-50 transition-colors" data-status="${s}" data-nama="${na.replace(/"/g, '&quot;')}" data-lokasi="${l.replace(/"/g, '&quot;')}">
                             <td class="px-6 py-3 text-sm font-mono font-bold border-l-4 ${colND}">${nd}</td>
                             <td class="px-6 py-3 text-sm font-medium text-slate-800">${na}<div class="text-xs text-slate-400 font-normal mt-0.5">SN: ${ns||'Tiada'} | RM ${h}</div></td>
                             <td class="px-6 py-3 text-sm text-slate-500"><div class="font-semibold text-slate-700">${l}</div><div class="text-xs text-slate-400">${k}</div></td>
