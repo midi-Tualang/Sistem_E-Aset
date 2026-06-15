@@ -12,19 +12,16 @@
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
         
-        /* TETAPAN CETAKAN PINTAR */
         @media print {
             body { background-color: white !important; color: black !important; }
             .glass-card { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
             @page { margin: 1cm; size: A4 portrait; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             
-            /* Mod 1: Cetak Ringkasan */
             body.summary-print-mode .glass-card { display: none !important; } 
             body.summary-print-mode #summaryPrintArea { display: block !important; } 
             body:not(.summary-print-mode) #summaryPrintArea { display: none !important; } 
 
-            /* Mod 2: Cetak Borang Rasmi KEW.PA */
             body.kewpa-print-mode .glass-card { display: none !important; }
             body.kewpa-print-mode nav { display: none !important; }
             body.kewpa-print-mode .main-header { display: none !important; }
@@ -40,10 +37,18 @@
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center gap-3">
                     <i class="fa-solid fa-shield-halved text-xl text-amber-400"></i>
-                    <span class="font-bold text-lg tracking-wide">E-Aset <span class="text-xs bg-amber-500 text-white px-2 py-0.5 rounded ml-1 font-normal">Portal Admin</span></span>
+                    <span class="font-bold text-lg tracking-wide">E-Aset <span class="text-xs bg-blue-900 text-slate-300 px-2 py-0.5 rounded ml-1 font-normal">Sistem Sekolah</span></span>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="bukaPanelTetapan()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
+                
+                <div class="flex items-center gap-2">
+                    
+                    <button id="btnAuthAdmin" onclick="kendaliButangAuth()" class="bg-blue-900 hover:bg-blue-950 text-white px-3 py-2 rounded-lg text-sm font-bold transition-all shadow-inner border border-blue-700/50 flex items-center gap-2">
+                        <i class="fa-solid fa-lock text-amber-400" id="iconAuth"></i><span id="txtAuth">Log Masuk Admin</span>
+                    </button>
+
+                    <span class="text-blue-700 px-1">|</span>
+
+                    <button onclick="pastikanAdmin(() => bukaPanelTetapan())" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
                         <i class="fa-solid fa-cogs"></i><span class="hidden md:inline ml-2">Tetapan</span>
                     </button>
                     <button onclick="cetakRingkasan()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-900 px-3 py-2 rounded-lg text-sm font-bold transition-all shadow-sm">
@@ -52,11 +57,14 @@
                     <button onclick="cetakPenuh()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-2 rounded-lg text-sm font-bold transition-all shadow-sm">
                         <i class="fa-solid fa-print"></i><span class="hidden lg:inline ml-1">Cetak Penuh</span>
                     </button>
-                    <button onclick="openModalPukal()" class="bg-amber-500 hover:bg-amber-400 text-blue-900 px-3 py-2 rounded-lg text-sm font-bold transition-all shadow-sm">
+                    <button onclick="pastikanAdmin(() => openModalPukal())" class="bg-amber-500 hover:bg-amber-400 text-blue-900 px-3 py-2 rounded-lg text-sm font-bold transition-all shadow-sm">
                         <i class="fa-solid fa-bolt"></i><span class="hidden md:inline ml-1">Sahkan Pukal</span>
                     </button>
-                    <button onclick="openModal('tambah')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
+                    <button onclick="pastikanAdmin(() => openModal('tambah'))" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
                         <i class="fa-solid fa-plus"></i><span class="hidden md:inline ml-1">Aset Baru</span>
+                    </button>
+                    <button onclick="resetSemua()" class="hidden md:block bg-red-600 hover:bg-red-500 text-white px-2 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
                     </button>
                 </div>
             </div>
@@ -73,7 +81,7 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 print:hidden">
             <div>
                 <h1 class="text-2xl font-bold text-slate-800">Senarai Inventori Kendalian</h1>
-                <p class="text-slate-500 text-sm">Sahkan kemasukan data dan jana KEW.PA aset anda di sini.</p>
+                <p class="text-slate-500 text-sm">Mod paparan terbuka (Read-Only). Log masuk untuk mengurus rekod Kew.PA.</p>
             </div>
             <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                 <div class="relative w-full md:w-48">
@@ -118,12 +126,7 @@
         <div id="kewpaPrintArea" class="hidden print:hidden w-full max-w-4xl mx-auto p-4 bg-white text-black text-sm">
             <div class="text-right font-bold text-lg mb-4" id="kewpaNoBorang">KEW.PA-3</div>
             <div class="text-center font-bold text-xl mb-6 uppercase" id="kewpaTajukBorang">DAFTAR ASET BERNILAI RENDAH</div>
-            
-            <div class="mb-4">
-                <span class="font-bold">Kementerian/Jabatan:</span> PENDIDIKAN<br>
-                <span class="font-bold">Bahagian/Sekolah:</span> <span class="border-b border-black w-64 inline-block"></span>
-            </div>
-
+            <div class="mb-4"><span class="font-bold">Kementerian/Jabatan:</span> PENDIDIKAN<br><span class="font-bold">Bahagian/Sekolah:</span> <span class="border-b border-black w-64 inline-block"></span></div>
             <div class="font-bold bg-slate-200 p-1 border border-black text-center mb-0">BAHAGIAN A</div>
             <table class="min-w-full border-collapse border border-black mb-8">
                 <tbody>
@@ -133,64 +136,86 @@
                     <tr><td class="border border-black p-2 font-bold">Jenis</td><td class="border border-black p-2 uppercase" colspan="3" id="kewpaJenis"></td></tr>
                     <tr><td class="border border-black p-2 font-bold">Kuantiti</td><td class="border border-black p-2" colspan="3">1 Unit</td></tr>
                     <tr><td class="border border-black p-2 font-bold">Unit Pengukuran</td><td class="border border-black p-2" colspan="3">Buah / Unit</td></tr>
-                    <tr>
-                        <td class="border border-black p-2 font-bold">Tempoh Jaminan</td><td class="border border-black p-2 w-1/4"></td>
-                        <td class="border border-black p-2 font-bold w-1/4">Harga Perolehan (RM)</td><td class="border border-black p-2 font-bold" id="kewpaHarga"></td>
-                    </tr>
-                    <tr>
-                        <td class="border border-black p-2 font-bold">Nama Pembekal</td><td class="border border-black p-2" colspan="3"><br><br></td>
-                    </tr>
-                    <tr>
-                        <td class="border border-black p-2 font-bold">Tarikh Diterima</td><td class="border border-black p-2"></td>
-                        <td class="border border-black p-2 font-bold">No. Pesanan Rasmi</td><td class="border border-black p-2"></td>
-                    </tr>
+                    <tr><td class="border border-black p-2 font-bold">Tempoh Jaminan</td><td class="border border-black p-2 w-1/4"></td><td class="border border-black p-2 font-bold w-1/4">Harga Perolehan (RM)</td><td class="border border-black p-2 font-bold" id="kewpaHarga"></td></tr>
+                    <tr><td class="border border-black p-2 font-bold">Nama Pembekal</td><td class="border border-black p-2" colspan="3"><br><br></td></tr>
+                    <tr><td class="border border-black p-2 font-bold">Tarikh Diterima</td><td class="border border-black p-2"></td><td class="border border-black p-2 font-bold">No. Pesanan Rasmi</td><td class="border border-black p-2"></td></tr>
                 </tbody>
             </table>
-
             <div class="font-bold bg-slate-200 p-1 border border-black text-center mb-0">PENEMPATAN</div>
-            <table class="min-w-full border-collapse border border-black mb-8 text-center">
-                <thead>
-                    <tr><th class="border border-black p-2">Lokasi</th><th class="border border-black p-2">Tarikh</th><th class="border border-black p-2">Nama Pegawai</th><th class="border border-black p-2">Tandatangan</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td class="border border-black p-3" id="kewpaLokasi"></td><td class="border border-black p-3"></td><td class="border border-black p-3"></td><td class="border border-black p-3"></td></tr>
-                    <tr><td class="border border-black p-4"></td><td class="border border-black p-4"></td><td class="border border-black p-4"></td><td class="border border-black p-4"></td></tr>
-                </tbody>
-            </table>
-
+            <table class="min-w-full border-collapse border border-black mb-8 text-center"><thead><tr><th class="border border-black p-2">Lokasi</th><th class="border border-black p-2">Tarikh</th><th class="border border-black p-2">Nama Pegawai</th><th class="border border-black p-2">Tandatangan</th></tr></thead><tbody><tr><td class="border border-black p-3" id="kewpaLokasi"></td><td class="border border-black p-3"></td><td class="border border-black p-3"></td><td class="border border-black p-3"></td></tr></tbody></table>
             <div class="font-bold bg-slate-200 p-1 border border-black text-center mb-0">PEMERIKSAAN</div>
-            <table class="min-w-full border-collapse border border-black text-center">
-                <thead>
-                    <tr><th class="border border-black p-2">Tarikh</th><th class="border border-black p-2">Status Aset</th><th class="border border-black p-2">Nama Pemeriksa</th><th class="border border-black p-2">Tandatangan</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td class="border border-black p-3"></td><td class="border border-black p-3 font-semibold uppercase" id="kewpaStatus"></td><td class="border border-black p-3"></td><td class="border border-black p-3"></td></tr>
-                    <tr><td class="border border-black p-4"></td><td class="border border-black p-4"></td><td class="border border-black p-4"></td><td class="border border-black p-4"></td></tr>
-                </tbody>
-            </table>
-            <div class="mt-8 pt-4 border-t border-slate-300 text-xs text-center text-slate-500 italic">Dokumen ini dijana secara automatik oleh Sistem E-Aset Sekolah.</div>
+            <table class="min-w-full border-collapse border border-black text-center"><thead><tr><th class="border border-black p-2">Tarikh</th><th class="border border-black p-2">Status Aset</th><th class="border border-black p-2">Nama Pemeriksa</th><th class="border border-black p-2">Tandatangan</th></tr></thead><tbody><tr><td class="border border-black p-3"></td><td class="border border-black p-3 font-semibold uppercase" id="kewpaStatus"></td><td class="border border-black p-3"></td><td class="border border-black p-3"></td></tr></tbody></table>
         </div>
     </main>
 
-    <div id="tetapanModal" class="fixed inset-0 bg-slate-900 bg-opacity-60 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden p-4"><div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh]"><div class="flex justify-between items-center p-5 border-b border-slate-200 bg-slate-50 rounded-t-xl"><h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-sliders text-blue-600 mr-2"></i>Panel Tetapan Pangkalan Data</h2><button onclick="tutupPanelTetapan()" class="text-slate-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button></div><div class="flex flex-col md:flex-row flex-1 overflow-hidden p-5 gap-6"><div class="flex-1 flex flex-col"><h3 class="font-bold text-slate-700 mb-3 border-b pb-2"><i class="fa-solid fa-box-open mr-2 text-slate-400"></i>Urus Nama Aset</h3><div class="flex gap-2 mb-3"><input type="text" id="inputBaruNamaAset" placeholder="Cth: Papan Pintar" class="flex-1 px-3 py-2 border rounded text-sm"><button onclick="tambahTetapan('namaAset')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"><i class="fa-solid fa-plus"></i></button></div><div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listNamaAset"></div></div><div class="flex-1 flex flex-col"><h3 class="font-bold text-slate-700 mb-3 border-b pb-2"><i class="fa-solid fa-map-location-dot mr-2 text-slate-400"></i>Urus Lokasi Premis</h3><div class="flex gap-2 mb-3"><input type="text" id="inputBaruLokasi" placeholder="Cth: Dewan Utama" class="flex-1 px-3 py-2 border rounded text-sm"><button onclick="tambahTetapan('lokasi')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"><i class="fa-solid fa-plus"></i></button></div><div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listLokasi"></div></div></div><div class="p-4 border-t bg-slate-50 rounded-b-xl flex justify-between items-center text-xs text-slate-500"><button onclick="tutupPanelTetapan()" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-4 py-2 rounded-lg font-bold">Tutup Panel</button></div></div></div>
+    <div id="tetapanModal" class="fixed inset-0 bg-slate-900 bg-opacity-60 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden p-4"><div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh]"><div class="flex justify-between items-center p-5 border-b border-slate-200 bg-slate-50 rounded-t-xl"><h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-sliders text-blue-600 mr-2"></i>Panel Tetapan Pangkalan Data</h2><button onclick="tutupPanelTetapan()" class="text-slate-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button></div><div class="flex flex-col md:flex-row flex-1 overflow-hidden p-5 gap-6"><div class="flex-1 flex flex-col"><h3 class="font-bold text-slate-700 mb-3 border-b pb-2"><i class="fa-solid fa-box-open mr-2 text-slate-400"></i>Urus Nama Aset</h3><div class="flex gap-2 mb-3"><input type="text" id="inputBaruNamaAset" placeholder="Cth: Papan Pintar" class="flex-1 px-3 py-2 border rounded text-sm"><button onclick="tambahTetapan('namaAset')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"><i class="fa-solid fa-plus"></i></button></div><div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listNamaAset"></div></div><div class="flex-1 flex flex-col"><h3 class="font-bold text-slate-700 mb-3 border-b pb-2"><i class="fa-solid fa-map-location-dot mr-2 text-slate-400"></i>Urus Lokasi Premis</h3><div class="flex gap-2 mb-3"><input type="text" id="inputBaruLokasi" placeholder="Cth: Dewan Utama" class="flex-1 px-3 py-2 border rounded text-sm"><button onclick="tambahTetapan('lokasi')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"><i class="fa-solid fa-plus"></i></button></div><div class="flex-1 overflow-y-auto custom-scroll border rounded bg-slate-50 p-2" id="listLokasi"></div></div></div><div class="p-4 border-t bg-slate-50 rounded-b-xl flex justify-end"><button onclick="tutupPanelTetapan()" class="bg-slate-300 hover:bg-slate-400 text-slate-800 px-4 py-2 rounded-lg font-bold text-sm">Tutup Panel</button></div></div></div>
+    
     <div id="asetModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden"><div class="bg-white rounded-xl shadow-xl w-11/12 md:w-1/2 max-w-lg p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold" id="modalTitle">Borang</h2><button onclick="closeModal()" class="text-slate-400 text-2xl">&times;</button></div><form id="asetForm" onsubmit="simpanData(event)"><input type="hidden" id="actionType"><input type="hidden" id="rowIndexField"><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm">No Daftar</label><input type="text" id="noDaftar" class="w-full px-3 py-2 border rounded bg-slate-50"></div><div><label class="block text-sm">No Siri</label><input type="text" id="noSiri" class="w-full px-3 py-2 border rounded"></div></div><div class="mb-4"><label class="block text-sm">Nama Aset</label><select id="namaAset" class="w-full px-3 py-2 border rounded"></select></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm">Harga (RM)</label><input type="number" step="0.01" id="hargaAset" onkeyup="autoSetKategori(this.value)" class="w-full px-3 py-2 border rounded border-blue-400"></div><div><label class="block text-sm">Kategori</label><select id="kategoriAset" class="w-full px-3 py-2 border rounded bg-slate-100 pointer-events-none"><option value="Belum Disahkan">Belum Disahkan</option><option value="Aset Bernilai Rendah">Aset Bernilai Rendah</option><option value="Harta Modal">Harta Modal</option></select></div></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm">Lokasi</label><select id="lokasiAset" class="w-full px-3 py-2 border rounded"></select></div><div><label class="block text-sm">Status</label><select id="statusAset" class="w-full px-3 py-2 border rounded"><option>Baik</option><option>Sedang Diselenggara</option><option>Rosak / Lupus</option></select></div></div><div class="flex justify-end gap-2"><button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-200 rounded">Batal</button><button type="submit" id="btnSimpan" class="px-4 py-2 bg-emerald-600 text-white rounded">Simpan</button></div></form></div></div>
     <div id="pukalModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden flex items-center justify-center backdrop-blur-sm z-50 print:hidden"><div class="bg-white rounded-xl shadow-xl w-11/12 md:w-1/2 max-w-lg p-6 border-t-8 border-amber-500"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Sahkan Pukal</h2><button onclick="closeModalPukal()" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button></div><form id="pukalForm" onsubmit="simpanPukal(event)"><div class="mb-4"><label class="block text-sm">Nama Aset</label><select id="pukalNamaAset" class="w-full px-3 py-2 border rounded"></select></div><div class="mb-4"><label class="block text-sm">Lokasi</label><select id="pukalLokasi" class="w-full px-3 py-2 border rounded"></select></div><div class="mb-4"><label class="block text-sm">Harga (RM)</label><input type="number" step="0.01" id="pukalHarga" class="w-full px-3 py-2 border rounded"></div><div class="flex justify-end gap-2"><button type="button" onclick="closeModalPukal()" class="px-4 py-2 bg-slate-200 rounded">Batal</button><button type="submit" id="btnSimpanPukal" class="px-4 py-2 bg-amber-500 rounded">Sahkan</button></div></form></div></div>
 
     <script>
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzJ_hJvfC-r2ZsV9iwVrQgGeq2cI6EPtTLjmNeCtcyR21S207jhvJE_LN9PY8fzQo4/exec'; 
+        const KATA_LALUAN_RAHSIA = 'aset2026'; // KATA LALUAN UTAMA ADMIN
+        
         let dataTetapanGlobal = { lokasi: [], namaAset: [] };
+        let statusAdminLoggedIn = false; // Status asal: Pelawat Biasa (Read-Only)
+
         document.getElementById('tarikhCetak').innerText = new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
 
         // ====================================================================
-        // FUNGSI JANA BORANG PDF KEW.PA-2 / KEW.PA-3
+        // ENJIN KEBENARAN PINTAR (INTERCEPTOR KESELURUHAN SISTEM)
+        // ====================================================================
+        function pastikanAdmin(fungsiAsal) {
+            if (statusAdminLoggedIn) {
+                if (fungsiAsal) fungsiAsal();
+            } else {
+                let pass = prompt("🔒 AKSI DIKUNCI\nSila masukkan Kata Laluan Admin untuk kebenaran pengurusan:");
+                if (pass === KATA_LALUAN_RAHSIA) {
+                    statusAdminLoggedIn = true;
+                    kemaskiniUIAdmin();
+                    alert("🔓 Log masuk berjaya! Mod pentadbir diaktifkan.");
+                    if (fungsiAsal) fungsiAsal();
+                } else if (pass !== null) {
+                    alert("❌ Kata laluan salah. Hak akses ditolak.");
+                }
+            }
+        }
+
+        function kendaliButangAuth() {
+            if (statusAdminLoggedIn) {
+                statusAdminLoggedIn = false;
+                kemaskiniUIAdmin();
+                alert("🔒 Anda telah log keluar. Sistem kembali ke Mod Lihat Sahaja.");
+            } else {
+                pastikanAdmin(null);
+            }
+        }
+
+        function kemaskiniUIAdmin() {
+            const btn = document.getElementById('btnAuthAdmin');
+            const txt = document.getElementById('txtAuth');
+            const icon = document.getElementById('iconAuth');
+            
+            if (statusAdminLoggedIn) {
+                btn.classList.remove('bg-blue-900', 'hover:bg-blue-950');
+                btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+                txt.innerText = "Mod Admin (Log Keluar)";
+                icon.className = "fa-solid fa-unlock-keyhole text-amber-300";
+            } else {
+                btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+                btn.classList.add('bg-blue-900', 'hover:bg-blue-950');
+                txt.innerText = "Log Masuk Admin";
+                icon.className = "fa-solid fa-lock text-amber-400";
+            }
+        }
+
+        // ====================================================================
+        // PENGURUSAN REKOD & CETAKAN (DIKAWAL KEBENARAN)
         // ====================================================================
         function janaKewPA(noDaftar, namaAset, kategori, lokasi, status, harga) {
-            // Tentukan jenis borang berdasarkan kategori
             let isHartaModal = (kategori === 'Harta Modal');
-            
             document.getElementById('kewpaNoBorang').innerText = isHartaModal ? 'KEW.PA-2' : 'KEW.PA-3';
             document.getElementById('kewpaTajukBorang').innerText = isHartaModal ? 'DAFTAR HARTA MODAL' : 'DAFTAR ASET BERNILAI RENDAH';
-            
             document.getElementById('kewpaNoDaftar').innerText = noDaftar;
             document.getElementById('kewpaKategori').innerText = kategori;
             document.getElementById('kewpaJenis').innerText = namaAset;
@@ -198,27 +223,13 @@
             document.getElementById('kewpaLokasi').innerText = lokasi;
             document.getElementById('kewpaStatus').innerText = status;
 
-            // Manipulasi nama fail PDF (Ubah title dokumen sementara)
             const tajukAsal = document.title;
-            const singkatanBorang = isHartaModal ? 'KEWPA2' : 'KEWPA3';
-            document.title = `${singkatanBorang}_${noDaftar.replace(/\//g, '-')}`;
-
-            // Aktifkan mod paparan khas KEW.PA
+            document.title = `${isHartaModal ? 'KEWPA2' : 'KEWPA3'}_${noDaftar.replace(/\//g, '-')}`;
             document.body.classList.add('kewpa-print-mode');
-            
-            // Cetak / Save PDF
             window.print();
-            
-            // Kembalikan ke keadaan asal
-            setTimeout(() => {
-                document.body.classList.remove('kewpa-print-mode');
-                document.title = tajukAsal;
-            }, 500);
+            setTimeout(() => { document.body.classList.remove('kewpa-print-mode'); document.title = tajukAsal; }, 500);
         }
 
-        // ====================================================================
-        // FUNGSI CETAKAN ASAL (Penuh & Ringkas)
-        // ====================================================================
         function cetakPenuh() {
             let inputTeks = document.getElementById("searchInput").value.trim();
             let inputStatus = document.getElementById("filterStatus").value;
@@ -276,16 +287,14 @@
             }, 500);
         }
 
-        // ====================================================================
-        // LOGIK UTAMA SISTEM & MUAT DATA
-        // ====================================================================
         function bukaPanelTetapan() { renderSenaraiTetapan(); document.getElementById('tetapanModal').classList.remove('hidden'); }
         function tutupPanelTetapan() { document.getElementById('tetapanModal').classList.add('hidden'); }
+        
         function renderSenaraiTetapan() {
             const listNama = document.getElementById('listNamaAset'), listLokasi = document.getElementById('listLokasi');
             listNama.innerHTML = ''; listLokasi.innerHTML = '';
-            dataTetapanGlobal.namaAset.forEach(nama => { listNama.innerHTML += `<div class="flex justify-between items-center bg-white p-2 mb-1 rounded border shadow-sm"><span class="text-sm font-medium text-slate-700">${nama}</span><div class="flex gap-1"><button onclick="editTetapan('namaAset', '${nama}')" class="text-blue-500 p-1"><i class="fa-solid fa-pen"></i></button><button onclick="padamTetapan('namaAset', '${nama}')" class="text-red-500 p-1"><i class="fa-solid fa-trash"></i></button></div></div>`; });
-            dataTetapanGlobal.lokasi.forEach(lok => { listLokasi.innerHTML += `<div class="flex justify-between items-center bg-white p-2 mb-1 rounded border shadow-sm"><span class="text-sm font-medium text-slate-700">${lok}</span><div class="flex gap-1"><button onclick="editTetapan('lokasi', '${lok}')" class="text-blue-500 p-1"><i class="fa-solid fa-pen"></i></button><button onclick="padamTetapan('lokasi', '${lok}')" class="text-red-500 p-1"><i class="fa-solid fa-trash"></i></button></div></div>`; });
+            dataTetapanGlobal.namaAset.forEach(nama => { listNama.innerHTML += `<div class="flex justify-between items-center bg-white p-2 mb-1 rounded border shadow-sm"><span class="text-sm font-medium text-slate-700">${nama}</span><div class="flex gap-1"><button onclick="editTetapan('namaAset', '${nama}')" class="text-blue-500 p-1"><i class="fa-solid fa-pen"></i></button><button onclick="padamTetapan('namaAset', '${nama}')" class="text-red-500 p-1"><i class="fa-solid fa-trash-can"></i></button></div></div>`; });
+            dataTetapanGlobal.lokasi.forEach(lok => { listLokasi.innerHTML += `<div class="flex justify-between items-center bg-white p-2 mb-1 rounded border shadow-sm"><span class="text-sm font-medium text-slate-700">${lok}</span><div class="flex gap-1"><button onclick="editTetapan('lokasi', '${lok}')" class="text-blue-500 p-1"><i class="fa-solid fa-pen"></i></button><button onclick="padamTetapan('lokasi', '${lok}')" class="text-red-500 p-1"><i class="fa-solid fa-trash-can"></i></button></div></div>`; });
         }
 
         async function jalankanUrusTetapan(subAction, jenis, nilaiLama, nilaiBaru) { try { await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'urus_tetapan', subAction: subAction, jenis: jenis, nilaiLama: nilaiLama, nilaiBaru: nilaiBaru }) }); await muatData(); renderSenaraiTetapan(); } catch (err) { alert('Ralat pelayan.'); } }
@@ -301,13 +310,15 @@
         function autoIncrement(s){return s?s.replace(/(\d+)$/,m=>String(parseInt(m,10)+1).padStart(m.length,'0')):'';}
 
         function panggilBorang(ac,r,nd,ns,na,k,l,s,h){
-            document.getElementById('actionType').value=ac;document.getElementById('rowIndexField').value=r;
-            document.getElementById('noDaftar').value=ac==='duplicate'?autoIncrement(nd):nd;
-            document.getElementById('noSiri').value=ac==='duplicate'?'':ns;document.getElementById('namaAset').value=na;
-            document.getElementById('kategoriAset').value=ac==='duplicate'?'Belum Disahkan':k;
-            document.getElementById('lokasiAset').value=l;document.getElementById('statusAset').value=s||'Baik';
-            document.getElementById('hargaAset').value=ac==='duplicate'?'0':h;autoSetKategori(document.getElementById('hargaAset').value);
-            document.getElementById('asetModal').classList.remove('hidden');
+            pastikanAdmin(() => {
+                document.getElementById('actionType').value=ac;document.getElementById('rowIndexField').value=r;
+                document.getElementById('noDaftar').value=ac==='duplicate'?autoIncrement(nd):nd;
+                document.getElementById('noSiri').value=ac==='duplicate'?'':ns;document.getElementById('namaAset').value=na;
+                document.getElementById('kategoriAset').value=ac==='duplicate'?'Belum Disahkan':k;
+                document.getElementById('lokasiAset').value=l;document.getElementById('statusAset').value=s||'Baik';
+                document.getElementById('hargaAset').value=ac==='duplicate'?'0':h;autoSetKategori(document.getElementById('hargaAset').value);
+                document.getElementById('asetModal').classList.remove('hidden');
+            });
         }
 
         async function muatData() {
@@ -339,22 +350,23 @@
                             <td class="px-6 py-3 text-sm text-slate-500"><div class="font-semibold text-slate-700">${l}</div><div class="text-xs text-slate-400">${k}</div></td>
                             <td class="px-6 py-3 text-sm"><span class="px-2 text-xs font-semibold rounded-full border ${bgSah}">${txtSah}</span></td>
                             <td class="px-6 py-3 text-right print:hidden">
-                                <div class="flex justify-end gap-2">
-                                    <button onclick="janaKewPA('${nd.replace(/'/g,"\\'")}', '${na.replace(/'/g,"\\'")}', '${k}', '${l.replace(/'/g,"\\'")}', '${s}', '${h}')" title="Cetak Borang KEW.PA" class="text-white hover:bg-purple-700 bg-purple-600 p-2 rounded shadow-sm"><i class="fa-solid fa-file-pdf"></i></button>
-                                    <button onclick="panggilBorang('duplicate', ${rId}, '${nd.replace(/'/g,"\\'")}', '${ns.replace(/'/g,"\\'")}', '${na.replace(/'/g,"\\'")}', '${k}', '${l.replace(/'/g,"\\'")}', '${s}', '${h}')" title="Duplicate" class="text-slate-500 hover:text-blue-600 bg-slate-100 p-2 rounded"><i class="fa-regular fa-copy"></i></button>
-                                    <button onclick="panggilBorang('edit', ${rId}, '${nd.replace(/'/g,"\\'")}', '${ns.replace(/'/g,"\\'")}', '${na.replace(/'/g,"\\'")}', '${k}', '${l.replace(/'/g,"\\'")}', '${s}', '${h}')" title="Edit/Sahkan" class="${sah==='Disahkan'?'text-slate-500':'text-amber-600 bg-amber-50 shadow-sm'} hover:text-green-600 bg-slate-100 p-2 rounded"><i class="fa-solid fa-pen"></i></button>
-                                    <button onclick="padamRekod(${rId}, '${na.replace(/'/g,"\\'")}')" title="Padam" class="text-slate-500 hover:text-red-600 bg-slate-100 p-2 rounded"><i class="fa-solid fa-trash"></i></button>
+                                <div class="flex justify-end gap-1.5">
+                                    <button onclick="janaKewPA('${nd.replace(/'/g,"\\'")}', '${na.replace(/'/g,"\\'")}', '${k}', '${l.replace(/'/g,"\\'")}', '${s}', '${h}')" title="Cetak Borang KEW.PA" class="text-white hover:bg-purple-700 bg-purple-600 p-1.5 rounded shadow-sm text-xs"><i class="fa-solid fa-file-pdf"></i></button>
+                                    <button onclick="panggilBorang('duplicate', ${rId}, '${nd.replace(/'/g,"\\'")}', '${ns.replace(/'/g,"\\'")}', '${na.replace(/'/g,"\\'")}', '${k}', '${l.replace(/'/g,"\\'")}', '${s}', '${h}')" title="Duplicate" class="text-slate-500 hover:text-blue-600 bg-slate-100 p-1.5 rounded text-xs"><i class="fa-regular fa-copy"></i></button>
+                                    <button onclick="panggilBorang('edit', ${rId}, '${nd.replace(/'/g,"\\'")}', '${ns.replace(/'/g,"\\'")}', '${na.replace(/'/g,"\\'")}', '${k}', '${l.replace(/'/g,"\\'")}', '${s}', '${h}')" title="Edit/Sahkan" class="${sah==='Disahkan'?'text-slate-500':'text-amber-600 bg-amber-50'} hover:text-green-600 bg-slate-100 p-1.5 rounded text-xs"><i class="fa-solid fa-pen"></i></button>
+                                    <button onclick="padamRekod(${rId}, '${na.replace(/'/g,"\\'")}')" title="Padam" class="text-slate-500 hover:text-red-600 bg-slate-100 p-1.5 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
                                 </div>
                             </td>
                         </tr>
                     `);
                 }); carianData();
-            } catch (e) { tb.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Ralat sambungan. Sila muat semula browser.</td></tr>'; }
+            } catch (e) { tb.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Ralat sambungan.</td></tr>'; }
         }
 
-        async function padamRekod(r, n){ if(confirm(`Padam rekod ${n}?`)){ await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'delete',rowIndex:r})}); setTimeout(muatData,800); } }
-        async function simpanData(e){ e.preventDefault(); document.getElementById('btnSimpan').disabled=true; await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:document.getElementById('actionType').value, rowIndex:document.getElementById('rowIndexField').value, data:{id:Date.now(), no_daftar:document.getElementById('noDaftar').value, no_siri:document.getElementById('noSiri').value, nama_aset:document.getElementById('namaAset').value, kategori:document.getElementById('kategoriAset').value, lokasi:document.getElementById('lokasiAset').value, status:document.getElementById('statusAset').value, harga:document.getElementById('hargaAset').value}})}); closeModal(); setTimeout(muatData,1000); document.getElementById('btnSimpan').disabled=false;}
-        async function simpanPukal(e){ e.preventDefault(); document.getElementById('btnSimpanPukal').disabled=true; await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'sahkan_pukal', data:{nama_aset:document.getElementById('pukalNamaAset').value, lokasi:document.getElementById('pukalLokasi').value, harga:document.getElementById('pukalHarga').value}})}); closeModalPukal(); setTimeout(muatData,1500); document.getElementById('btnSimpanPukal').disabled=false;}
+        function padamRekod(r, n){ pastikanAdmin(async () => { if(confirm(`Padam rekod ${n}?`)){ await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'delete',rowIndex:r})}); setTimeout(muatData,800); } }); }
+        function resetSemua(){ pastikanAdmin(async () => { if(prompt("Sahkan semula kata laluan keselamatan:")===KATA_LALUAN_RAHSIA && confirm("Adakah anda benar-benar pasti mahu memadam kesemua rekod?")){ document.getElementById('tableBody').innerHTML='<tr><td colspan="5" class="text-center py-4 text-red-500 font-bold">Memadam...</td></tr>'; await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'reset'})}); setTimeout(muatData,1000); } }); }
+        async function simpanData(e){ e.preventDefault(); document.getElementById('btnSimpan').disabled=true; await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:document.getElementById('actionType').value, rowIndex:document.getElementById('rowIndexField').value, data:{id:Date.now(), no_daftar:document.getElementById('noDaftar').value, no_siri:document.getElementById('noSiri').value, nama_aset:document.getElementById('namaAset').value, kategori:document.getElementById('kategoriAset').value, lokasi:document.getElementById('lokasiAset').value, status:document.getElementById('statusAset').value, harga:document.getElementById('hargaAset').value}})}); closeModal(); setTimeout(muatData,1000); }
+        async function simpanPukal(e){ e.preventDefault(); document.getElementById('btnSimpanPukal').disabled=true; await fetch(scriptURL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'sahkan_pukal', data:{nama_aset:document.getElementById('pukalNamaAset').value, lokasi:document.getElementById('pukalLokasi').value, harga:document.getElementById('pukalHarga').value}})}); closeModalPukal(); setTimeout(muatData,1500); }
 
         function carianData(){
             let t=document.getElementById("searchInput").value.toLowerCase(), s=document.getElementById("filterStatus").value, r=document.getElementsByClassName("search-row");
